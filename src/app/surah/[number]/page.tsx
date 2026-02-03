@@ -1,11 +1,40 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { getSurahComplete, getSurahList } from '@/lib/api';
 import SurahClientWrapper from '@/components/SurahClientWrapper';
 
 // Bismillah text (shown for all surahs except At-Taubah)
 const BISMILLAH = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+
+// Surah names in Indonesian for SEO
+const SURAH_NAMES_ID: Record<number, string> = {
+    1: "Al-Fatihah (Pembukaan)",
+    2: "Al-Baqarah (Sapi Betina)",
+    3: "Ali 'Imran (Keluarga Imran)",
+    4: "An-Nisa (Wanita)",
+    5: "Al-Ma'idah (Hidangan)",
+    6: "Al-An'am (Hewan Ternak)",
+    7: "Al-A'raf (Tempat Tertinggi)",
+    8: "Al-Anfal (Rampasan Perang)",
+    9: "At-Taubah (Pengampunan)",
+    10: "Yunus (Yunus)",
+    11: "Hud (Hud)",
+    12: "Yusuf (Yusuf)",
+    13: "Ar-Ra'd (Guruh)",
+    14: "Ibrahim (Ibrahim)",
+    15: "Al-Hijr (Hijr)",
+    16: "An-Nahl (Lebah)",
+    17: "Al-Isra (Perjalanan Malam)",
+    18: "Al-Kahf (Gua)",
+    36: "Ya-Sin (Ya Sin)",
+    67: "Al-Mulk (Kerajaan)",
+    78: "An-Naba (Berita Besar)",
+    112: "Al-Ikhlas (Ketulusan)",
+    113: "Al-Falaq (Waktu Subuh)",
+    114: "An-Nas (Manusia)",
+};
 
 // Pre-render all 114 surahs at build time
 export async function generateStaticParams() {
@@ -13,6 +42,54 @@ export async function generateStaticParams() {
     return surahs.map((surah) => ({
         number: String(surah.number),
     }));
+}
+
+// Dynamic SEO metadata for each surah
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ number: string }>;
+}): Promise<Metadata> {
+    const { number } = await params;
+    const surahNumber = parseInt(number, 10);
+
+    if (isNaN(surahNumber) || surahNumber < 1 || surahNumber > 114) {
+        return {};
+    }
+
+    const data = await getSurahComplete(surahNumber);
+    const { surah } = data;
+
+    const surahNameId = SURAH_NAMES_ID[surahNumber] || surah.englishNameTranslation;
+    const title = `Surah ${surah.englishName} - ${surahNameId}`;
+    const description = `Baca Surah ${surah.englishName} (${surah.name}) lengkap ${surah.numberOfAyahs} ayat dengan terjemahan Bahasa Indonesia dan audio murottal. ${surah.revelationType === 'Meccan' ? 'Surah Makkiyah' : 'Surah Madaniyah'}.`;
+
+    return {
+        title,
+        description,
+        keywords: [
+            `surah ${surah.englishName.toLowerCase()}`,
+            surah.englishName.toLowerCase(),
+            `surat ${surah.englishName.toLowerCase()}`,
+            `${surah.englishName} terjemahan`,
+            `${surah.englishName} audio`,
+            `${surah.englishName} arab latin`,
+        ],
+        openGraph: {
+            title: `${title} | Quran Online`,
+            description,
+            type: "article",
+            url: `https://quranonline.id/surah/${surahNumber}`,
+        },
+        twitter: {
+            card: "summary",
+            title: `${title} | Quran Online`,
+            description,
+        },
+        alternates: {
+            canonical: `https://quranonline.id/surah/${surahNumber}`,
+        },
+    };
 }
 
 // Loading skeleton component
@@ -42,8 +119,34 @@ async function SurahContent({ surahNumber }: { surahNumber: number }) {
     const { surah, ayahs } = data;
     const showBismillah = surahNumber !== 9 && surahNumber !== 1;
 
+    // JSON-LD structured data for Surah
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: `Surah ${surah.englishName} - ${surah.englishNameTranslation}`,
+        description: `Baca Surah ${surah.englishName} lengkap dengan terjemahan Indonesia`,
+        author: {
+            "@type": "Organization",
+            name: "Quran Online",
+        },
+        publisher: {
+            "@type": "Organization",
+            name: "Quran Online Indonesia",
+        },
+        mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": `https://quranonline.id/surah/${surahNumber}`,
+        },
+    };
+
     return (
         <>
+            {/* JSON-LD for this surah */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+
             {/* Surah Header */}
             <header className="text-center mb-8 fade-in">
                 <div className="inline-block px-6 py-2 bg-primary/10 rounded-full mb-4">

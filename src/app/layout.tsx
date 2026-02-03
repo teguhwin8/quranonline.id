@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -9,15 +9,83 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#1b5e20" },
+    { media: "(prefers-color-scheme: dark)", color: "#1a2f23" },
+  ],
+};
+
 export const metadata: Metadata = {
-  title: "Quran Online - Baca Al-Quran Digital",
-  description: "Baca Al-Quran online dengan terjemahan Bahasa Indonesia, audio murottal, dan fitur bookmark. Gratis dan mudah digunakan.",
-  keywords: ["quran", "al-quran", "quran online", "baca quran", "terjemahan quran", "murottal"],
-  authors: [{ name: "Quran Online" }],
+  metadataBase: new URL("https://quranonline.id"),
+  title: {
+    default: "Quran Online - Baca Al-Quran Digital dengan Terjemahan Indonesia",
+    template: "%s | Quran Online",
+  },
+  description: "Baca Al-Quran online lengkap 114 surah dengan terjemahan Bahasa Indonesia, audio murottal Al-Afasy, fitur bookmark, dan mode gelap. 100% gratis tanpa iklan.",
+  keywords: [
+    "quran online",
+    "al-quran",
+    "baca quran",
+    "quran terjemahan indonesia",
+    "murottal quran",
+    "al quran digital",
+    "quran lengkap",
+    "surah al-fatihah",
+    "surah yasin",
+    "juz amma",
+    "tadarus quran",
+    "ngaji online",
+  ],
+  authors: [{ name: "Quran Online Indonesia" }],
+  creator: "Quran Online",
+  publisher: "Quran Online Indonesia",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: "Quran Online - Baca Al-Quran Digital",
-    description: "Baca Al-Quran online dengan terjemahan Bahasa Indonesia dan audio murottal.",
     type: "website",
+    locale: "id_ID",
+    url: "https://quranonline.id",
+    siteName: "Quran Online",
+    title: "Quran Online - Baca Al-Quran Digital dengan Terjemahan Indonesia",
+    description: "Baca Al-Quran online lengkap 114 surah dengan terjemahan Bahasa Indonesia, audio murottal, dan fitur bookmark. Gratis!",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Quran Online - Baca Al-Quran Digital",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quran Online - Baca Al-Quran Digital",
+    description: "Baca Al-Quran online lengkap dengan terjemahan Indonesia dan audio murottal. Gratis!",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here
+    // google: "your-google-verification-code",
+  },
+  alternates: {
+    canonical: "https://quranonline.id",
   },
 };
 
@@ -26,6 +94,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Quran Online",
+    alternateName: "Quran Online Indonesia",
+    url: "https://quranonline.id",
+    description: "Baca Al-Quran online lengkap dengan terjemahan Bahasa Indonesia dan audio murottal",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://quranonline.id/search?q={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
@@ -36,6 +121,30 @@ export default function RootLayout({
         <link
           href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"
           rel="stylesheet"
+        />
+        {/* Manifest & Icons */}
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+        {/* Apple Icons */}
+        <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png" />
+        {/* MS Icons */}
+        <meta name="msapplication-TileColor" content="#1b5e20" />
+        <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
+        {/* JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <script
           dangerouslySetInnerHTML={{
@@ -58,6 +167,16 @@ export default function RootLayout({
           <main className="min-h-screen">
             {children}
           </main>
+          <footer className="bg-card-bg border-t border-card-border py-8 text-center text-foreground-muted text-sm">
+            <div className="max-w-7xl mx-auto px-4">
+              <p className="mb-2">
+                © 2026 Quran Online Indonesia. Semua hak dilindungi.
+              </p>
+              <p>
+                Sumber data: <a href="https://alquran.cloud" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Al-Quran Cloud API</a>
+              </p>
+            </div>
+          </footer>
         </ThemeProvider>
       </body>
     </html>

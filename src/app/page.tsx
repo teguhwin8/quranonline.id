@@ -7,19 +7,43 @@ import Link from 'next/link';
 export default async function HomePage() {
   const surahs = await getSurahList();
 
+  // JSON-LD for ItemList (all surahs)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Daftar 114 Surah Al-Quran",
+    description: "Daftar lengkap 114 surah dalam Al-Quran dengan terjemahan Indonesia",
+    numberOfItems: 114,
+    itemListElement: surahs.slice(0, 20).map((surah, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "Article",
+        name: `Surah ${surah.englishName}`,
+        url: `https://quranonline.id/surah/${surah.number}`,
+      },
+    })),
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Hero Section */}
       <section className="text-center mb-12 fade-in">
         <div className="mb-6">
           <span className="bismillah text-4xl md:text-5xl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-          Quran Online
+          Quran Online Indonesia
         </h1>
         <p className="text-lg text-foreground-muted max-w-2xl mx-auto">
-          Baca Al-Quran dengan terjemahan Bahasa Indonesia,
-          dengarkan murottal dari qari terkenal, dan simpan ayat favorit Anda.
+          Baca Al-Quran lengkap 114 surah dengan terjemahan Bahasa Indonesia,
+          dengarkan audio murottal, dan simpan ayat favorit Anda. 100% gratis.
         </p>
       </section>
 
@@ -59,7 +83,7 @@ export default async function HomePage() {
       {/* Surah List */}
       <section>
         <h2 className="text-xl font-semibold text-foreground mb-6">
-          Daftar Surah
+          Daftar Surah Al-Quran
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children">
           {surahs.map((surah) => (
@@ -67,16 +91,6 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="mt-16 pt-8 border-t border-card-border text-center text-foreground-muted">
-        <p className="mb-2">
-          Data dari <a href="https://alquran.cloud" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Al-Quran Cloud API</a>
-        </p>
-        <p className="text-sm">
-          © 2026 Quran Online. Semoga bermanfaat.
-        </p>
-      </footer>
     </div>
   );
 }
