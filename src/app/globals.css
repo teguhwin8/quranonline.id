@@ -1,26 +1,395 @@
+/* Google Fonts - Arabic & Latin */
+/* Using KFGQPC Uthmanic Script HAFS for Quran text (like quran.com) */
+@import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Primary Colors - Islamic Green */
+  --primary-50: #e8f5e9;
+  --primary-100: #c8e6c9;
+  --primary-200: #a5d6a7;
+  --primary-300: #81c784;
+  --primary-400: #66bb6a;
+  --primary-500: #4caf50;
+  --primary-600: #43a047;
+  --primary-700: #388e3c;
+  --primary-800: #2e7d32;
+  --primary-900: #1b5e20;
+
+  /* Gold Accent */
+  --gold-50: #fff8e1;
+  --gold-100: #ffecb3;
+  --gold-200: #ffe082;
+  --gold-300: #ffd54f;
+  --gold-400: #ffca28;
+  --gold-500: #d4a04a;
+  --gold-600: #c49000;
+  --gold-700: #b68200;
+  --gold-800: #a67500;
+  --gold-900: #8d6300;
+
+  /* Light Mode (default) */
+  --background: #fdf6e3;
+  --background-alt: #f5efe0;
+  --foreground: #2c3e50;
+  --foreground-muted: #5d6d7e;
+  --card-bg: #ffffff;
+  --card-border: #e8e1d3;
+  --arabic-text: #1a1a2e;
+
+  /* Component Colors */
+  --header-bg: var(--primary-900);
+  --header-text: #ffffff;
+  --button-primary: var(--primary-700);
+  --button-primary-hover: var(--primary-800);
+  --ornament: var(--gold-500);
+  --ornament-light: var(--gold-200);
+}
+
+/* Dark mode - via class (manual) */
+html.dark {
+  --background: #0f1419;
+  --background-alt: #1a1f26;
+  --foreground: #e7e9ea;
+  --foreground-muted: #8b98a5;
+  --card-bg: #1e2732;
+  --card-border: #2f3b47;
+  --arabic-text: #ffffff;
+
+  --header-bg: #1a2f23;
+  --ornament: var(--gold-400);
+  --ornament-light: var(--gold-700);
+}
+
+/* Dark mode - via system preference (fallback) */
+@media (prefers-color-scheme: dark) {
+  html:not(.light):not(.dark) {
+    --background: #0f1419;
+    --background-alt: #1a1f26;
+    --foreground: #e7e9ea;
+    --foreground-muted: #8b98a5;
+    --card-bg: #1e2732;
+    --card-border: #2f3b47;
+    --arabic-text: #ffffff;
+
+    --header-bg: #1a2f23;
+    --ornament: var(--gold-400);
+    --ornament-light: var(--gold-700);
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-alt: var(--background-alt);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-arabic-text: var(--arabic-text);
+  --color-primary: var(--primary-700);
+  --color-primary-dark: var(--primary-900);
+  --color-primary-light: var(--primary-100);
+  --color-gold: var(--gold-500);
+  --color-gold-light: var(--gold-200);
+  --color-header-bg: var(--header-bg);
+  --color-header-text: var(--header-text);
+  --color-ornament: var(--ornament);
+
+  --font-sans: 'Inter', sans-serif;
+  --font-arabic: 'Scheherazade New', 'Amiri', 'Traditional Arabic', serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Base Styles */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+/* Arabic Text Styling */
+.arabic-text {
+  font-family: var(--font-arabic);
+  font-size: 1.75rem;
+  line-height: 2.5;
+  direction: rtl;
+  text-align: right;
+  color: var(--arabic-text);
+  word-spacing: 0.1em;
+}
+
+.arabic-text-lg {
+  font-size: 2.25rem;
+  line-height: 2.8;
+  direction: rtl;
+  text-align: right;
+}
+
+.arabic-text-xl {
+  font-size: 2.75rem;
+  line-height: 3;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Surah Name in Arabic */
+.surah-name-arabic {
+  font-family: var(--font-arabic);
+  font-size: 1.5rem;
+}
+
+/* Bismillah */
+.bismillah {
+  font-family: var(--font-arabic);
+  font-size: 2rem;
+  text-align: center;
+  color: var(--primary-700);
+  padding: 2rem;
+}
+
+/* Ornamental Divider */
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.ornament-divider::before,
+.ornament-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right,
+      transparent,
+      var(--ornament),
+      transparent);
+}
+
+/* Ayah Number Badge */
+.ayah-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-900));
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Styles */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-900));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 94, 32, 0.3);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--foreground);
+}
+
+.btn-ghost:hover {
+  background: var(--background-alt);
+}
+
+/* Icon Button */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: var(--background-alt);
+}
+
+/* Audio Player Progress */
+.audio-progress {
+  height: 4px;
+  background: var(--card-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.audio-progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, var(--primary-600), var(--gold-500));
+  transition: width 0.1s linear;
+}
+
+/* Search Input */
+.search-input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 9999px;
+  font-size: 1rem;
+  color: var(--foreground);
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--foreground-muted);
+}
+
+/* Loading Shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg,
+      var(--card-border) 25%,
+      var(--background-alt) 50%,
+      var(--card-border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Stagger Children Animation */
+.stagger-children>* {
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.stagger-children>*:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.stagger-children>*:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.stagger-children>*:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.stagger-children>*:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.stagger-children>*:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.stagger-children>*:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+.stagger-children>*:nth-child(n+7) {
+  animation-delay: 0.35s;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-alt);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-muted);
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  .arabic-text {
+    font-size: 1.5rem;
+    line-height: 2.2;
+  }
+
+  .arabic-text-lg {
+    font-size: 1.75rem;
+    line-height: 2.4;
+  }
+
+  .arabic-text-xl {
+    font-size: 2rem;
+    line-height: 2.6;
+  }
+
+  .bismillah {
+    font-size: 1.5rem;
+    padding: 1.5rem;
+  }
 }
