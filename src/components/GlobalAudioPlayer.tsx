@@ -6,8 +6,8 @@ import { useAudio } from '@/hooks/useAudio';
 
 export default function GlobalAudioPlayer() {
     const router = useRouter();
-    const { audioState, togglePlay, setAyahIndex, closePlayer } = useAudio();
-    const audioRef = useRef<HTMLAudioElement>(null);
+    const { audioState, audioRef, togglePlay, setAyahIndex, closePlayer } = useAudio();
+    const [playError, setPlayError] = useState<string | null>(null);
     const progressRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | null>(null);
     const [duration, setDuration] = useState(0);
@@ -85,7 +85,17 @@ export default function GlobalAudioPlayer() {
         if (!audio || !currentAyah?.audio) return;
 
         if (isPlaying && isLoaded) {
-            audio.play().catch(() => { });
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        setPlayError(null);
+                    })
+                    .catch((error) => {
+                        console.error('Audio play error:', error);
+                        setPlayError(error.message || 'Gagal memutar audio');
+                    });
+            }
         } else {
             audio.pause();
         }
@@ -99,9 +109,7 @@ export default function GlobalAudioPlayer() {
         const handleLoadedMetadata = () => {
             setDuration(audio.duration);
             setIsLoaded(true);
-            if (isPlaying) {
-                audio.play().catch(() => { });
-            }
+            // Don't auto-play here, let the isPlaying effect handle it
         };
 
         const handleCanPlay = () => {
@@ -150,82 +158,129 @@ export default function GlobalAudioPlayer() {
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     };
 
-    // Don't render if no audio is playing
-    if (currentAyahIndex === null || !currentAyah?.audio || !surah) return null;
+    // Handle play/pause directly from user gesture for mobile compatibility
+    const handleTogglePlay = useCallback(() => {
+        const audio = audioRef.current;
+        if (!audio) {
+            togglePlay();
+            return;
+        }
+
+        if (isPlaying) {
+            // Pause is always safe
+            audio.pause();
+            togglePlay();
+        } else {
+            // Play directly from user gesture (required for mobile)
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        setPlayError(null);
+                        togglePlay();
+                    })
+                    .catch((error) => {
+                        console.error('Audio play error on user gesture:', error);
+                        setPlayError(error.message || 'Gagal memutar audio');
+                        // Still toggle state so UI reflects intent
+                        togglePlay();
+                    });
+            } else {
+                togglePlay();
+            }
+        }
+    }, [isPlaying, togglePlay]);
+
+    // Always render audio element so it's available for first play
+    // Only conditionally render the player UI
+    const showPlayer = currentAyahIndex !== null && currentAyah?.audio && surah;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-card-bg border-t border-card-border shadow-lg z-50 fade-in">
-            <audio ref={audioRef} preload="auto" />
+        <>
+            {/* Always render audio element for mobile compatibility */}
+            <audio ref={audioRef} preload="auto" playsInline style={{ display: 'none' }} />
 
-            {/* Progress Bar - using RAF for smooth updates */}
-            <div
-                className="h-1 bg-card-border cursor-pointer relative"
-                onClick={handleProgressClick}
-            >
-                <div
-                    ref={progressRef}
-                    className="absolute top-0 left-0 h-full bg-primary"
-                    style={{ width: '0%' }}
-                />
-            </div>
+            {showPlayer && (
+                <div className="fixed bottom-0 left-0 right-0 bg-card-bg border-t border-card-border shadow-lg z-50 fade-in">
 
-            <div className="max-w-7xl mx-auto px-4 py-3">
-                <div className="flex items-center gap-4">
-                    {/* Current Ayah Info - Clickable */}
-                    <button
-                        onClick={handleNavigateToAyah}
-                        className="flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
+                    {/* Show error if audio fails to play */}
+                    {playError && (
+                        <div className="bg-red-500/10 text-red-500 text-xs px-4 py-1 text-center">
+                            {playError}
+                        </div>
+                    )}
+
+                    {/* Progress Bar - using RAF for smooth updates */}
+                    <div
+                        className="h-1 bg-card-border cursor-pointer relative"
+                        onClick={handleProgressClick}
                     >
-                        <p className="font-semibold text-foreground truncate">
-                            {surah.englishName} : {currentAyah.numberInSurah}
-                        </p>
-                        <p className="text-sm text-foreground-muted">
-                            {formatTime(currentTime)} / {formatTime(duration)}
-                        </p>
-                    </button>
-
-                    {/* Controls */}
-                    <div className="flex items-center gap-2">
-                        {/* Previous */}
-                        <button
-                            onClick={playPrevious}
-                            disabled={currentAyahIndex === 0}
-                            className="icon-btn disabled:opacity-30"
-                            aria-label="Ayat sebelumnya"
-                        >
-                            <i className="ri-skip-back-fill text-xl"></i>
-                        </button>
-
-                        {/* Play/Pause */}
-                        <button
-                            onClick={togglePlay}
-                            className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors"
-                            aria-label={isPlaying ? 'Pause' : 'Play'}
-                        >
-                            <i className={`${isPlaying ? 'ri-pause-fill' : 'ri-play-fill'} text-2xl`}></i>
-                        </button>
-
-                        {/* Next */}
-                        <button
-                            onClick={playNext}
-                            disabled={currentAyahIndex === ayahs.length - 1}
-                            className="icon-btn disabled:opacity-30"
-                            aria-label="Ayat selanjutnya"
-                        >
-                            <i className="ri-skip-forward-fill text-xl"></i>
-                        </button>
+                        <div
+                            ref={progressRef}
+                            className="absolute top-0 left-0 h-full bg-primary"
+                            style={{ width: '0%' }}
+                        />
                     </div>
 
-                    {/* Close Button */}
-                    <button
-                        onClick={closePlayer}
-                        className="icon-btn"
-                        aria-label="Tutup player"
-                    >
-                        <i className="ri-close-line text-xl"></i>
-                    </button>
+                    <div className="max-w-7xl mx-auto px-4 py-3">
+                        <div className="flex items-center gap-4">
+                            {/* Current Ayah Info - Clickable */}
+                            <button
+                                onClick={handleNavigateToAyah}
+                                className="flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
+                            >
+                                <p className="font-semibold text-foreground truncate">
+                                    {surah.englishName} : {currentAyah.numberInSurah}
+                                </p>
+                                <p className="text-sm text-foreground-muted">
+                                    {formatTime(currentTime)} / {formatTime(duration)}
+                                </p>
+                            </button>
+
+                            {/* Controls */}
+                            <div className="flex items-center gap-2">
+                                {/* Previous */}
+                                <button
+                                    onClick={playPrevious}
+                                    disabled={currentAyahIndex === 0}
+                                    className="icon-btn disabled:opacity-30"
+                                    aria-label="Ayat sebelumnya"
+                                >
+                                    <i className="ri-skip-back-fill text-xl"></i>
+                                </button>
+
+                                {/* Play/Pause */}
+                                <button
+                                    onClick={handleTogglePlay}
+                                    className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors"
+                                    aria-label={isPlaying ? 'Pause' : 'Play'}
+                                >
+                                    <i className={`${isPlaying ? 'ri-pause-fill' : 'ri-play-fill'} text-2xl`}></i>
+                                </button>
+
+                                {/* Next */}
+                                <button
+                                    onClick={playNext}
+                                    disabled={currentAyahIndex === ayahs.length - 1}
+                                    className="icon-btn disabled:opacity-30"
+                                    aria-label="Ayat selanjutnya"
+                                >
+                                    <i className="ri-skip-forward-fill text-xl"></i>
+                                </button>
+                            </div>
+
+                            {/* Close Button */}
+                            <button
+                                onClick={closePlayer}
+                                className="icon-btn"
+                                aria-label="Tutup player"
+                            >
+                                <i className="ri-close-line text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            )}
+        </>
     );
 }

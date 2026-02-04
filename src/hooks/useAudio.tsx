@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useRef, RefObject } from 'react';
 import { AyahWithTranslation, SurahDetail } from '@/types/quran';
 
 interface AudioState {
@@ -12,6 +12,7 @@ interface AudioState {
 
 interface AudioContextType {
     audioState: AudioState;
+    audioRef: RefObject<HTMLAudioElement | null>;
     playSurah: (surah: SurahDetail, ayahs: AyahWithTranslation[], startIndex?: number) => void;
     playAyah: (index: number) => void;
     togglePlay: () => void;
@@ -23,6 +24,7 @@ interface AudioContextType {
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 export function AudioProvider({ children }: { children: ReactNode }) {
+    const audioRef = useRef<HTMLAudioElement>(null);
     const [audioState, setAudioState] = useState<AudioState>({
         surah: null,
         ayahs: [],
@@ -77,6 +79,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     return (
         <AudioContext.Provider value={{
             audioState,
+            audioRef,
             playSurah,
             playAyah,
             togglePlay,
@@ -94,6 +97,8 @@ export function useAudio(): AudioContextType {
 
     // Return default values if context is not available (during SSR/prerendering)
     if (context === undefined) {
+        // Create a stable ref for SSR
+        const dummyRef = { current: null };
         return {
             audioState: {
                 surah: null,
@@ -101,6 +106,7 @@ export function useAudio(): AudioContextType {
                 currentAyahIndex: null,
                 isPlaying: false,
             },
+            audioRef: dummyRef,
             playSurah: () => { },
             playAyah: () => { },
             togglePlay: () => { },

@@ -13,7 +13,7 @@ interface SurahClientWrapperProps {
 }
 
 export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperProps) {
-    const { audioState, playSurah, playAyah } = useAudio();
+    const { audioState, audioRef, playSurah, playAyah } = useAudio();
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const ayahRefs = useRef<(HTMLDivElement | null)[]>([]);
     const pathname = usePathname();
@@ -82,18 +82,59 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
     }, [audioState.currentAyahIndex, audioState.surah?.number, surahNumber]);
 
     // Stable callback for playing ayah - uses useCallback
+    // Calls audio.play() directly from user gesture for mobile compatibility
     const handlePlayAyah = useCallback((index: number) => {
+        const audio = audioRef.current;
+        const targetAyah = ayahs[index];
+
         if (audioState.surah?.number !== surahNumber) {
+            // New surah - load and play
+            if (audio && targetAyah?.audio) {
+                audio.src = targetAyah.audio;
+                audio.load();
+                audio.play().catch((error) => {
+                    console.error('Audio play error:', error);
+                });
+            }
             playSurah(surah, ayahs, index);
         } else {
+            // Same surah
+            if (audio && targetAyah?.audio) {
+                if (audioState.currentAyahIndex === index && audioState.isPlaying) {
+                    // Pause
+                    audio.pause();
+                } else if (audioState.currentAyahIndex === index && !audioState.isPlaying) {
+                    // Resume
+                    audio.play().catch((error) => {
+                        console.error('Audio play error:', error);
+                    });
+                } else {
+                    // Different ayah - load and play
+                    audio.src = targetAyah.audio;
+                    audio.load();
+                    audio.play().catch((error) => {
+                        console.error('Audio play error:', error);
+                    });
+                }
+            }
             playAyah(index);
         }
-    }, [audioState.surah?.number, surahNumber, playSurah, playAyah, surah, ayahs]);
+    }, [audioState.surah?.number, audioState.currentAyahIndex, audioState.isPlaying, surahNumber, playSurah, playAyah, surah, ayahs, audioRef]);
 
-    // Stable callback for play all
+    // Stable callback for play all - calls audio.play() directly for mobile
     const handlePlayAll = useCallback(() => {
+        const audio = audioRef.current;
+        const firstAyah = ayahs[0];
+
+        if (audio && firstAyah?.audio) {
+            audio.src = firstAyah.audio;
+            audio.load();
+            audio.play().catch((error) => {
+                console.error('Audio play error:', error);
+            });
+        }
         playSurah(surah, ayahs, 0);
-    }, [playSurah, surah, ayahs]);
+    }, [playSurah, surah, ayahs, audioRef]);
 
     // Memoize isAyahPlaying check
     const isCurrentSurah = audioState.surah?.number === surahNumber;
