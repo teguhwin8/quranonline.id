@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { AyahWithTranslation } from '@/types/quran';
 
 interface AyahCardProps {
@@ -12,7 +13,9 @@ interface AyahCardProps {
     onToggleBookmark?: () => void;
 }
 
-export default function AyahCard({
+// Memoized to prevent re-renders when parent re-renders
+// Only re-renders when its own props change
+function AyahCard({
     ayah,
     isPlaying = false,
     isBookmarked = false,
@@ -64,3 +67,5 @@ export default function AyahCard({
         </article>
     );
 }
+
+export default memo(AyahCard);

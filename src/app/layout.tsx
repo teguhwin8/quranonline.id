@@ -3,6 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { AudioProvider } from "@/hooks/useAudio";
+import GlobalAudioPlayer from "@/components/GlobalAudioPlayer";
+import Copyright from "@/components/Copyright";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -39,8 +42,8 @@ export const metadata: Metadata = {
     "tadarus quran",
     "ngaji online",
   ],
-  authors: [{ name: "Quran Online Indonesia" }],
-  creator: "Quran Online",
+  authors: [{ name: "Teguh Widodo", url: "https://www.linkedin.com/in/teguhwin8/" }],
+  creator: "Teguh Widodo",
   publisher: "Quran Online Indonesia",
   formatDetection: {
     email: false,
@@ -163,20 +166,24 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} antialiased`}>
         <ThemeProvider>
-          <Navbar />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <footer className="bg-card-bg border-t border-card-border py-8 text-center text-foreground-muted text-sm">
-            <div className="max-w-7xl mx-auto px-4">
-              <p className="mb-2">
-                © 2026 Quran Online Indonesia. Semua hak dilindungi.
-              </p>
-              <p>
-                Sumber data: <a href="https://alquran.cloud" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Al-Quran Cloud API</a>
-              </p>
-            </div>
-          </footer>
+          <AudioProvider>
+            <Navbar />
+            <main className="min-h-screen pb-20">
+              {children}
+            </main>
+            <GlobalAudioPlayer />
+            <footer className="bg-card-bg border-t border-card-border py-8 text-center text-foreground-muted text-sm">
+              <div className="max-w-7xl mx-auto px-4">
+                <Copyright />
+                <p className="mb-2">
+                  Dibuat dengan ❤️ oleh <a href="https://www.linkedin.com/in/teguhwin8/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Teguh Widodo</a>
+                </p>
+                <p>
+                  Sumber data: <a href="https://alquran.cloud" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Al-Quran Cloud API</a>
+                </p>
+              </div>
+            </footer>
+          </AudioProvider>
         </ThemeProvider>
       </body>
     </html>

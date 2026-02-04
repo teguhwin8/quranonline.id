@@ -84,6 +84,17 @@ export default function SettingsPage() {
                         <span className="text-foreground">1.0.0</span>
                     </div>
                     <div className="flex justify-between">
+                        <span className="text-foreground-muted">Pengembang</span>
+                        <a
+                            href="https://www.linkedin.com/in/teguhwin8/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                        >
+                            Teguh Widodo
+                        </a>
+                    </div>
+                    <div className="flex justify-between">
                         <span className="text-foreground-muted">Sumber Data</span>
                         <a
                             href="https://alquran.cloud"
