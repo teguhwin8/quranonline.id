@@ -11,7 +11,23 @@ const withPWA = withPWAInit({
     document: "/offline",
   },
   workboxOptions: {
+    // Force the new SW to skip waiting and become active immediately
+    skipWaiting: true,
+    clientsClaim: true,
     runtimeCaching: [
+      {
+        // Use NetworkFirst for JS files to ensure users get latest code
+        urlPattern: /\/_next\/static\/.*/i,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "next-static-cache",
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 60 * 24, // 1 day
+          },
+          networkTimeoutSeconds: 3,
+        },
+      },
       {
         // Cache API responses from Al-Quran Cloud
         urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/.*/i,
