@@ -87,6 +87,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
             closePlayer,
             isCurrentAyah,
         }}>
+            {/* Audio element rendered by provider - always available */}
+            <audio ref={audioRef} preload="auto" playsInline style={{ display: 'none' }} />
             {children}
         </AudioContext.Provider>
     );

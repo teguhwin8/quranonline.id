@@ -61,45 +61,52 @@ export default function GlobalAudioPlayer() {
         };
     }, [isPlaying, isLoaded, updateProgress]);
 
-    // Load audio when source changes
+    // Load audio when source changes and handle play/pause
+    // Combined to prevent race conditions
     useEffect(() => {
         const audio = audioRef.current;
         const progressBar = progressRef.current;
         if (!audio || !currentAyah?.audio) return;
 
-        // Reset progress
-        if (progressBar) {
-            progressBar.style.width = '0%';
-        }
-        setCurrentTime(0);
-        setDuration(0);
-        setIsLoaded(false);
+        // Check if source changed
+        const sourceChanged = audio.src !== currentAyah.audio;
 
-        audio.src = currentAyah.audio;
-        audio.load();
-    }, [currentAyah?.audio]);
-
-    // Handle play/pause
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio || !currentAyah?.audio) return;
-
-        if (isPlaying && isLoaded) {
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise
-                    .then(() => {
-                        setPlayError(null);
-                    })
-                    .catch((error) => {
-                        console.error('Audio play error:', error);
-                        setPlayError(error.message || 'Gagal memutar audio');
-                    });
+        if (sourceChanged) {
+            // Reset progress
+            if (progressBar) {
+                progressBar.style.width = '0%';
             }
+            setCurrentTime(0);
+            setDuration(0);
+            setIsLoaded(false);
+            setPlayError(null);
+
+            audio.src = currentAyah.audio;
+            audio.load();
+
+            // Play will be triggered by canplaythrough handler if isPlaying is true
         } else {
-            audio.pause();
+            // Source is the same, just handle play/pause
+            if (isPlaying && isLoaded) {
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            setPlayError(null);
+                        })
+                        .catch((error) => {
+                            // Ignore AbortError as it's expected during rapid state changes
+                            if (error.name !== 'AbortError') {
+                                console.error('Audio play error:', error);
+                                setPlayError(error.message || 'Gagal memutar audio');
+                            }
+                        });
+                }
+            } else if (!isPlaying) {
+                audio.pause();
+            }
         }
-    }, [isPlaying, isLoaded, currentAyah?.audio]);
+    }, [currentAyah?.audio, isPlaying, isLoaded, audioRef]);
 
     // Audio event listeners
     useEffect(() => {
@@ -108,28 +115,42 @@ export default function GlobalAudioPlayer() {
 
         const handleLoadedMetadata = () => {
             setDuration(audio.duration);
-            setIsLoaded(true);
-            // Don't auto-play here, let the isPlaying effect handle it
         };
 
         const handleCanPlay = () => {
             setIsLoaded(true);
+            // Auto-play when audio is ready and isPlaying is true
+            if (isPlaying) {
+                audio.play().catch((error) => {
+                    if (error.name !== 'AbortError') {
+                        console.error('Audio canplay error:', error);
+                        setPlayError(error.message || 'Gagal memutar audio');
+                    }
+                });
+            }
         };
 
         const handleEnded = () => {
             playNext();
         };
 
+        const handleError = () => {
+            setPlayError('Gagal memuat audio');
+            setIsLoaded(false);
+        };
+
         audio.addEventListener('loadedmetadata', handleLoadedMetadata);
         audio.addEventListener('canplay', handleCanPlay);
         audio.addEventListener('ended', handleEnded);
+        audio.addEventListener('error', handleError);
 
         return () => {
             audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
             audio.removeEventListener('canplay', handleCanPlay);
             audio.removeEventListener('ended', handleEnded);
+            audio.removeEventListener('error', handleError);
         };
-    }, [playNext, isPlaying]);
+    }, [playNext, isPlaying, audioRef]);
 
     const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
         const audio = audioRef.current;
@@ -197,9 +218,6 @@ export default function GlobalAudioPlayer() {
 
     return (
         <>
-            {/* Always render audio element for mobile compatibility */}
-            <audio ref={audioRef} preload="auto" playsInline style={{ display: 'none' }} />
-
             {showPlayer && (
                 <div className="fixed bottom-0 left-0 right-0 bg-card-bg border-t border-card-border shadow-lg z-50 fade-in">
 
