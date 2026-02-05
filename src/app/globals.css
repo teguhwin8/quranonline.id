@@ -182,6 +182,34 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Arabic Verse End Marker - decorative circle with Arabic number */
+.ayah-end-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-arabic);
+  font-size: 1.5rem;
+  color: var(--primary-700);
+  margin-right: 0.25rem;
+  position: relative;
+}
+
+.ayah-end-marker::before {
+  content: '۝';
+  font-size: 2.5rem;
+  position: absolute;
+  color: var(--ornament);
+  opacity: 0.9;
+}
+
+html.dark .ayah-end-marker {
+  color: var(--primary-400);
+}
+
+html.dark .ayah-end-marker::before {
+  color: var(--gold-400);
+}
+
 /* Card Styles */
 .card {
   background: var(--card-bg);
