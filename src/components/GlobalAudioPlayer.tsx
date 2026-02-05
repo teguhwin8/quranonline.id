@@ -3,10 +3,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAudio } from '@/hooks/useAudio';
+import { getSurahComplete } from '@/lib/api';
+
+// Bismillah audio URL (from Al-Fatihah verse 1)
+const BISMILLAH_AUDIO_URL = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3';
 
 export default function GlobalAudioPlayer() {
     const router = useRouter();
-    const { audioState, audioRef, closePlayer, pauseAudio, resumeAudio, playWithGesture } = useAudio();
+    const { audioState, audioRef, closePlayer, pauseAudio, resumeAudio, playWithGesture, toggleAutoPlay } = useAudio();
     const [playError, setPlayError] = useState<string | null>(null);
     const progressRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | null>(null);
@@ -14,21 +18,57 @@ export default function GlobalAudioPlayer() {
     const [currentTime, setCurrentTime] = useState(0);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    const { surah, ayahs, currentAyahIndex, isPlaying } = audioState;
+    const { surah, ayahs, currentAyahIndex, isPlaying, autoPlayNextSurah } = audioState;
     const currentAyah = currentAyahIndex !== null ? ayahs[currentAyahIndex] : null;
+    const [isLoadingNextSurah, setIsLoadingNextSurah] = useState(false);
 
     // Play next ayah - uses playWithGesture for iOS compatibility when called from button
-    const playNext = useCallback(() => {
+    const playNext = useCallback(async () => {
         if (currentAyahIndex !== null && currentAyahIndex < ayahs.length - 1 && surah) {
             const nextIndex = currentAyahIndex + 1;
             const nextAyah = ayahs[nextIndex];
             if (nextAyah?.audio) {
                 playWithGesture(nextAyah.audio, surah, ayahs, nextIndex);
             }
+        } else if (autoPlayNextSurah && surah && surah.number < 114) {
+            // Last ayah of surah, autoplay is on, and not the last surah
+            setIsLoadingNextSurah(true);
+            try {
+                const nextSurahNumber = surah.number + 1;
+                const { surah: nextSurah, ayahs: nextAyahs } = await getSurahComplete(nextSurahNumber);
+
+                // At-Taubah (surah 9) doesn't have bismillah, so play first ayah directly
+                if (nextSurahNumber === 9) {
+                    if (nextAyahs[0]?.audio) {
+                        playWithGesture(nextAyahs[0].audio, nextSurah, nextAyahs, 0);
+                        router.push(`/surah/${nextSurahNumber}`);
+                    }
+                } else {
+                    // Prepend bismillah as virtual ayah at index 0
+                    const bismillahAyah = {
+                        number: 0,
+                        numberInSurah: 0,
+                        arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                        translation: 'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
+                        audio: BISMILLAH_AUDIO_URL,
+                    };
+                    const ayahsWithBismillah = [bismillahAyah, ...nextAyahs];
+
+                    // Play bismillah first (index 0), then ayahs will continue from index 1
+                    playWithGesture(BISMILLAH_AUDIO_URL, nextSurah, ayahsWithBismillah, 0);
+                    router.push(`/surah/${nextSurahNumber}`);
+                }
+            } catch (error) {
+                console.error('Failed to load next surah:', error);
+                setPlayError('Gagal memuat surat berikutnya');
+                closePlayer();
+            } finally {
+                setIsLoadingNextSurah(false);
+            }
         } else {
             closePlayer();
         }
-    }, [currentAyahIndex, ayahs, surah, playWithGesture, closePlayer]);
+    }, [currentAyahIndex, ayahs, surah, autoPlayNextSurah, playWithGesture, closePlayer, router]);
 
     // Play previous ayah - uses playWithGesture for iOS compatibility
     const playPrevious = useCallback(() => {
@@ -71,30 +111,46 @@ export default function GlobalAudioPlayer() {
         };
     }, [isPlaying, isLoaded, updateProgress]);
 
-    // Load audio when source changes and handle play/pause
-    // Combined to prevent race conditions
+    // Track previous ayah for detecting changes
+    const prevAyahRef = useRef<{ surahNum: number | null; ayahIndex: number | null }>({
+        surahNum: null,
+        ayahIndex: null
+    });
+
+    // Reset progress when ayah changes
     useEffect(() => {
-        const audio = audioRef.current;
         const progressBar = progressRef.current;
-        if (!audio || !currentAyah?.audio) return;
+        const currentSurahNum = surah?.number ?? null;
 
-        // Check if source changed
-        const sourceChanged = audio.src !== currentAyah.audio;
+        // Check if ayah actually changed
+        const ayahChanged = prevAyahRef.current.surahNum !== currentSurahNum ||
+            prevAyahRef.current.ayahIndex !== currentAyahIndex;
 
-        if (sourceChanged) {
-            // Reset progress
-            if (progressBar) {
-                progressBar.style.width = '0%';
-            }
+        if (ayahChanged && progressBar) {
+            // Reset progress bar immediately
+            progressBar.style.width = '0%';
             setCurrentTime(0);
             setDuration(0);
             setIsLoaded(false);
             setPlayError(null);
+        }
 
+        // Update ref
+        prevAyahRef.current = { surahNum: currentSurahNum, ayahIndex: currentAyahIndex };
+    }, [surah?.number, currentAyahIndex]);
+
+    // Load audio when source changes and handle play/pause
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio || !currentAyah?.audio) return;
+
+        // Check if we need to load new audio
+        const needsLoad = audio.src !== currentAyah.audio;
+
+        if (needsLoad) {
             audio.src = currentAyah.audio;
             audio.load();
-
-            // Play will be triggered by canplaythrough handler if isPlaying is true
+            // Play will be triggered by canplay handler if isPlaying is true
         } else {
             // Source is the same, just handle play/pause
             if (isPlaying && isLoaded) {
@@ -266,13 +322,27 @@ export default function GlobalAudioPlayer() {
                                 {/* Next */}
                                 <button
                                     onClick={playNext}
-                                    disabled={currentAyahIndex === ayahs.length - 1}
+                                    disabled={currentAyahIndex === ayahs.length - 1 && !autoPlayNextSurah}
                                     className="icon-btn disabled:opacity-30"
                                     aria-label="Ayat selanjutnya"
                                 >
-                                    <i className="ri-skip-forward-fill text-xl"></i>
+                                    {isLoadingNextSurah ? (
+                                        <i className="ri-loader-4-line text-xl animate-spin"></i>
+                                    ) : (
+                                        <i className="ri-skip-forward-fill text-xl"></i>
+                                    )}
                                 </button>
                             </div>
+
+                            {/* Autoplay Toggle */}
+                            <button
+                                onClick={toggleAutoPlay}
+                                className={`icon-btn ${autoPlayNextSurah ? 'bg-primary/20 text-primary' : ''}`}
+                                aria-label={autoPlayNextSurah ? 'Autoplay aktif' : 'Autoplay nonaktif'}
+                                title={autoPlayNextSurah ? 'Autoplay: ON (Lanjut ke surat berikutnya)' : 'Autoplay: OFF'}
+                            >
+                                <i className="ri-repeat-2-line text-xl"></i>
+                            </button>
 
                             {/* Close Button */}
                             <button

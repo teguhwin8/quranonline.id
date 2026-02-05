@@ -8,6 +8,7 @@ interface AudioState {
     ayahs: AyahWithTranslation[];
     currentAyahIndex: number | null;
     isPlaying: boolean;
+    autoPlayNextSurah: boolean;
 }
 
 interface AudioContextType {
@@ -23,6 +24,7 @@ interface AudioContextType {
     playWithGesture: (audioUrl: string, surah: SurahDetail, ayahs: AyahWithTranslation[], index: number) => void;
     pauseAudio: () => void;
     resumeAudio: () => void;
+    toggleAutoPlay: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -34,15 +36,17 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         ayahs: [],
         currentAyahIndex: null,
         isPlaying: false,
+        autoPlayNextSurah: true,
     });
 
     const playSurah = useCallback((surah: SurahDetail, ayahs: AyahWithTranslation[], startIndex = 0) => {
-        setAudioState({
+        setAudioState(prev => ({
+            ...prev,
             surah,
             ayahs,
             currentAyahIndex: startIndex,
             isPlaying: true,
-        });
+        }));
     }, []);
 
     const playAyah = useCallback((index: number) => {
@@ -105,12 +109,13 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         }
 
         // Update state
-        setAudioState({
+        setAudioState(prev => ({
+            ...prev,
             surah,
             ayahs,
             currentAyahIndex: index,
             isPlaying: true,
-        });
+        }));
     }, []);
 
     // Pause audio (safe to call from anywhere)
@@ -136,6 +141,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         setAudioState(prev => ({ ...prev, isPlaying: true }));
     }, []);
 
+    // Toggle autoplay next surah
+    const toggleAutoPlay = useCallback(() => {
+        setAudioState(prev => ({ ...prev, autoPlayNextSurah: !prev.autoPlayNextSurah }));
+    }, []);
+
     return (
         <AudioContext.Provider value={{
             audioState,
@@ -149,6 +159,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
             playWithGesture,
             pauseAudio,
             resumeAudio,
+            toggleAutoPlay,
         }}>
             {/* Audio element rendered by provider - always available */}
             <audio ref={audioRef} preload="none" playsInline style={{ display: 'none' }} />
@@ -170,6 +181,7 @@ export function useAudio(): AudioContextType {
                 ayahs: [],
                 currentAyahIndex: null,
                 isPlaying: false,
+                autoPlayNextSurah: true,
             },
             audioRef: dummyRef,
             playSurah: () => { },
@@ -181,6 +193,7 @@ export function useAudio(): AudioContextType {
             playWithGesture: () => { },
             pauseAudio: () => { },
             resumeAudio: () => { },
+            toggleAutoPlay: () => { },
         };
     }
 
