@@ -163,6 +163,34 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Unregister old service workers for users who had PWA installed */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    registrations.forEach(function(registration) {
+                      registration.unregister().then(function(success) {
+                        if (success) {
+                          console.log('Service worker unregistered successfully');
+                        }
+                      });
+                    });
+                  });
+                  // Also clear caches
+                  if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                      names.forEach(function(name) {
+                        caches.delete(name);
+                      });
+                    });
+                  }
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body className={`${inter.variable} antialiased`}>
         <ThemeProvider>

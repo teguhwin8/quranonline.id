@@ -13,7 +13,7 @@ interface SurahClientWrapperProps {
 }
 
 export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperProps) {
-    const { audioState, playSurah, playAyah } = useAudio();
+    const { audioState, playWithGesture, pauseAudio, resumeAudio } = useAudio();
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const ayahRefs = useRef<(HTMLDivElement | null)[]>([]);
     const pathname = usePathname();
@@ -81,22 +81,37 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
         }
     }, [audioState.currentAyahIndex, audioState.surah?.number, surahNumber]);
 
-    // Stable callback for playing ayah - only updates state
-    // Audio control is handled by GlobalAudioPlayer
+    // Stable callback for playing ayah - uses iOS-compatible functions
+    // All audio.play() calls happen directly from user gesture
     const handlePlayAyah = useCallback((index: number) => {
-        if (audioState.surah?.number !== surahNumber) {
-            // New surah
-            playSurah(surah, ayahs, index);
-        } else {
-            // Same surah - toggle or switch ayah
-            playAyah(index);
-        }
-    }, [audioState.surah?.number, surahNumber, playSurah, playAyah, surah, ayahs]);
+        const targetAyah = ayahs[index];
+        if (!targetAyah?.audio) return;
 
-    // Stable callback for play all - only updates state
+        if (audioState.surah?.number !== surahNumber) {
+            // New surah - load and play with gesture
+            playWithGesture(targetAyah.audio, surah, ayahs, index);
+        } else {
+            // Same surah
+            if (audioState.currentAyahIndex === index && audioState.isPlaying) {
+                // Same ayah playing - pause
+                pauseAudio();
+            } else if (audioState.currentAyahIndex === index && !audioState.isPlaying) {
+                // Same ayah paused - resume
+                resumeAudio();
+            } else {
+                // Different ayah - load and play
+                playWithGesture(targetAyah.audio, surah, ayahs, index);
+            }
+        }
+    }, [audioState.surah?.number, audioState.currentAyahIndex, audioState.isPlaying, surahNumber, playWithGesture, pauseAudio, resumeAudio, surah, ayahs]);
+
+    // Stable callback for play all - uses iOS-compatible function
     const handlePlayAll = useCallback(() => {
-        playSurah(surah, ayahs, 0);
-    }, [playSurah, surah, ayahs]);
+        const firstAyah = ayahs[0];
+        if (firstAyah?.audio) {
+            playWithGesture(firstAyah.audio, surah, ayahs, 0);
+        }
+    }, [playWithGesture, surah, ayahs]);
 
     // Memoize isAyahPlaying check
     const isCurrentSurah = audioState.surah?.number === surahNumber;

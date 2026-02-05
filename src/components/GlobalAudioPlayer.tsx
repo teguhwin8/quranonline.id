@@ -6,7 +6,7 @@ import { useAudio } from '@/hooks/useAudio';
 
 export default function GlobalAudioPlayer() {
     const router = useRouter();
-    const { audioState, audioRef, togglePlay, setAyahIndex, closePlayer } = useAudio();
+    const { audioState, audioRef, closePlayer, pauseAudio, resumeAudio, playWithGesture } = useAudio();
     const [playError, setPlayError] = useState<string | null>(null);
     const progressRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | null>(null);
@@ -17,19 +17,29 @@ export default function GlobalAudioPlayer() {
     const { surah, ayahs, currentAyahIndex, isPlaying } = audioState;
     const currentAyah = currentAyahIndex !== null ? ayahs[currentAyahIndex] : null;
 
+    // Play next ayah - uses playWithGesture for iOS compatibility when called from button
     const playNext = useCallback(() => {
-        if (currentAyahIndex !== null && currentAyahIndex < ayahs.length - 1) {
-            setAyahIndex(currentAyahIndex + 1);
+        if (currentAyahIndex !== null && currentAyahIndex < ayahs.length - 1 && surah) {
+            const nextIndex = currentAyahIndex + 1;
+            const nextAyah = ayahs[nextIndex];
+            if (nextAyah?.audio) {
+                playWithGesture(nextAyah.audio, surah, ayahs, nextIndex);
+            }
         } else {
             closePlayer();
         }
-    }, [currentAyahIndex, ayahs.length, setAyahIndex, closePlayer]);
+    }, [currentAyahIndex, ayahs, surah, playWithGesture, closePlayer]);
 
+    // Play previous ayah - uses playWithGesture for iOS compatibility
     const playPrevious = useCallback(() => {
-        if (currentAyahIndex !== null && currentAyahIndex > 0) {
-            setAyahIndex(currentAyahIndex - 1);
+        if (currentAyahIndex !== null && currentAyahIndex > 0 && surah) {
+            const prevIndex = currentAyahIndex - 1;
+            const prevAyah = ayahs[prevIndex];
+            if (prevAyah?.audio) {
+                playWithGesture(prevAyah.audio, surah, ayahs, prevIndex);
+            }
         }
-    }, [currentAyahIndex, setAyahIndex]);
+    }, [currentAyahIndex, ayahs, surah, playWithGesture]);
 
     // Smooth progress update using requestAnimationFrame
     const updateProgress = useCallback(() => {
@@ -173,7 +183,8 @@ export default function GlobalAudioPlayer() {
     };
 
     const formatTime = (time: number) => {
-        if (!time || isNaN(time)) return '0:00';
+        // Handle iOS edge cases where duration can be Infinity or NaN
+        if (!time || isNaN(time) || !isFinite(time)) return '--:--';
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -181,36 +192,12 @@ export default function GlobalAudioPlayer() {
 
     // Handle play/pause directly from user gesture for mobile compatibility
     const handleTogglePlay = useCallback(() => {
-        const audio = audioRef.current;
-        if (!audio) {
-            togglePlay();
-            return;
-        }
-
         if (isPlaying) {
-            // Pause is always safe
-            audio.pause();
-            togglePlay();
+            pauseAudio();
         } else {
-            // Play directly from user gesture (required for mobile)
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise
-                    .then(() => {
-                        setPlayError(null);
-                        togglePlay();
-                    })
-                    .catch((error) => {
-                        console.error('Audio play error on user gesture:', error);
-                        setPlayError(error.message || 'Gagal memutar audio');
-                        // Still toggle state so UI reflects intent
-                        togglePlay();
-                    });
-            } else {
-                togglePlay();
-            }
+            resumeAudio();
         }
-    }, [isPlaying, togglePlay]);
+    }, [isPlaying, pauseAudio, resumeAudio]);
 
     // Always render audio element so it's available for first play
     // Only conditionally render the player UI

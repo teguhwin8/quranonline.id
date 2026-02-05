@@ -19,6 +19,10 @@ interface AudioContextType {
     setAyahIndex: (index: number) => void;
     closePlayer: () => void;
     isCurrentAyah: (surahNumber: number, ayahIndex: number) => boolean;
+    // iOS-compatible: call this from user gesture to play audio directly
+    playWithGesture: (audioUrl: string, surah: SurahDetail, ayahs: AyahWithTranslation[], index: number) => void;
+    pauseAudio: () => void;
+    resumeAudio: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -65,6 +69,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const closePlayer = useCallback(() => {
+        const audio = audioRef.current;
+        if (audio) {
+            audio.pause();
+            audio.src = '';
+        }
         setAudioState(prev => ({
             ...prev,
             currentAyahIndex: null,
@@ -76,6 +85,57 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         return audioState.surah?.number === surahNumber && audioState.currentAyahIndex === ayahIndex && audioState.isPlaying;
     }, [audioState.surah?.number, audioState.currentAyahIndex, audioState.isPlaying]);
 
+    // iOS-compatible: plays audio directly from user gesture
+    // This MUST be called synchronously from a click/touch handler
+    const playWithGesture = useCallback((audioUrl: string, surah: SurahDetail, ayahs: AyahWithTranslation[], index: number) => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        // Set src and play synchronously from user gesture
+        audio.src = audioUrl;
+        audio.load();
+
+        // Play immediately - this is the key for iOS
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+                // Silently handle errors, state will still update
+                console.error('playWithGesture error:', error);
+            });
+        }
+
+        // Update state
+        setAudioState({
+            surah,
+            ayahs,
+            currentAyahIndex: index,
+            isPlaying: true,
+        });
+    }, []);
+
+    // Pause audio (safe to call from anywhere)
+    const pauseAudio = useCallback(() => {
+        const audio = audioRef.current;
+        if (audio) {
+            audio.pause();
+        }
+        setAudioState(prev => ({ ...prev, isPlaying: false }));
+    }, []);
+
+    // Resume audio - MUST be called from user gesture on iOS
+    const resumeAudio = useCallback(() => {
+        const audio = audioRef.current;
+        if (audio && audio.src) {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch((error) => {
+                    console.error('resumeAudio error:', error);
+                });
+            }
+        }
+        setAudioState(prev => ({ ...prev, isPlaying: true }));
+    }, []);
+
     return (
         <AudioContext.Provider value={{
             audioState,
@@ -86,9 +146,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
             setAyahIndex,
             closePlayer,
             isCurrentAyah,
+            playWithGesture,
+            pauseAudio,
+            resumeAudio,
         }}>
             {/* Audio element rendered by provider - always available */}
-            <audio ref={audioRef} preload="auto" playsInline style={{ display: 'none' }} />
+            <audio ref={audioRef} preload="none" playsInline style={{ display: 'none' }} />
             {children}
         </AudioContext.Provider>
     );
@@ -115,6 +178,9 @@ export function useAudio(): AudioContextType {
             setAyahIndex: () => { },
             closePlayer: () => { },
             isCurrentAyah: () => false,
+            playWithGesture: () => { },
+            pauseAudio: () => { },
+            resumeAudio: () => { },
         };
     }
 
