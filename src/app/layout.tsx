@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Scheherazade_New, Amiri } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/hooks/useTheme";
@@ -10,6 +10,22 @@ import Copyright from "@/components/Copyright";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+});
+
+const scheherazade = Scheherazade_New({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-scheherazade",
+  display: "swap",
+  preload: true,
+});
+
+const amiri = Amiri({
+  subsets: ["arabic"],
+  weight: ["400", "700"],
+  variable: "--font-amiri",
+  display: "swap",
+  preload: true,
 });
 
 export const viewport: Viewport = {
@@ -118,10 +134,6 @@ export default function RootLayout({
     <html lang="id" suppressHydrationWarning>
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
           href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"
           rel="stylesheet"
         />
@@ -192,7 +204,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} ${scheherazade.variable} ${amiri.variable} antialiased`}>
         <ThemeProvider>
           <AudioProvider>
             <Navbar />

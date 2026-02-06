@@ -31,7 +31,7 @@ function SurahCard({ surah }: SurahCardProps) {
                             </div>
 
                             {/* Arabic Name */}
-                            <span className="surah-name-arabic text-primary-dark shrink-0">
+                            <span className="font-arabic text-primary-dark shrink-0">
                                 {surah.name}
                             </span>
                         </div>

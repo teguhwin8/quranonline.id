@@ -126,7 +126,7 @@ async function SurahContent({ surahNumber }: { surahNumber: number }) {
                 <div className="flex items-center justify-between gap-4 py-4 px-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-xl">
                     {/* Left: Arabic name */}
                     <div className="text-right flex-shrink-0">
-                        <span className="surah-name-arabic text-2xl md:text-3xl text-primary-dark">
+                        <span className="font-arabic text-2xl md:text-3xl text-primary-dark">
                             {surah.name}
                         </span>
                     </div>

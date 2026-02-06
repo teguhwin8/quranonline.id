@@ -1,7 +1,4 @@
-/* Google Fonts - Arabic & Latin */
-/* Using KFGQPC Uthmanic Script HAFS for Quran text (like quran.com) */
-@import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
+/* Fonts are loaded via next/font/google in layout.tsx for optimal production loading */
 @import "tailwindcss";
 
 :root {
@@ -96,8 +93,8 @@ html.dark {
   --color-header-text: var(--header-text);
   --color-ornament: var(--ornament);
 
-  --font-sans: 'Inter', sans-serif;
-  --font-arabic: 'Scheherazade New', 'Amiri', 'Traditional Arabic', serif;
+  --font-sans: var(--font-inter), 'Inter', sans-serif;
+  --font-arabic: var(--font-scheherazade), var(--font-amiri), 'Scheherazade New', 'Amiri', 'Traditional Arabic', serif;
 }
 
 /* Base Styles */
