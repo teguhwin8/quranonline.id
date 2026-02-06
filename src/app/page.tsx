@@ -1,6 +1,6 @@
 import { getSurahList } from '@/lib/api';
 import SurahCard from '@/components/SurahCard';
-import Link from 'next/link';
+import SearchAutocomplete from '@/components/SearchAutocomplete';
 
 // ISR dikonfigurasi di level fetch (lib/api.ts) dengan revalidate: 86400
 
@@ -49,14 +49,7 @@ export default async function HomePage() {
 
       {/* Search Bar */}
       <section className="mb-10 fade-in">
-        <Link href="/search" className="block max-w-xl mx-auto relative group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground-muted">
-            <i className="ri-search-line text-xl"></i>
-          </div>
-          <div className="search-input cursor-pointer group-hover:border-primary transition-colors">
-            Cari ayat, surah, atau kata kunci...
-          </div>
-        </Link>
+        <SearchAutocomplete surahs={surahs} />
       </section>
 
       {/* Stats */}
