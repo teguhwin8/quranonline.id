@@ -207,6 +207,37 @@ html.dark .ayah-end-marker::before {
   color: var(--gold-400);
 }
 
+/* Surah Number Badge with Arabic numeral and decorative frame */
+.surah-number-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.surah-number-frame {
+  position: absolute;
+  font-family: var(--font-arabic);
+  font-size: 2.75rem;
+  color: var(--ornament);
+  line-height: 1;
+}
+
+.surah-number-text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-arabic);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-800);
+}
+
+html.dark .surah-number-text {
+  color: var(--primary-300);
+}
+
 /* Card Styles */
 .card {
   background: var(--card-bg);

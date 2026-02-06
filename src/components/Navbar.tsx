@@ -2,108 +2,103 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const pathname = usePathname();
+
+    const isActive = (path: string) => {
+        if (path === '/') return pathname === '/';
+        return pathname.startsWith(path);
+    };
 
     return (
-        <header className="sticky top-0 z-50 bg-header-bg text-header-text shadow-lg">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <Image
-                            src="/logo-quranonline.id.png"
-                            alt="Quran Online"
-                            width={44}
-                            height={44}
-                        />
-                        <span className="font-bold text-lg tracking-wide hidden sm:block">Quran Online</span>
-                    </Link>
+        <>
+            {/* Header - Top Bar */}
+            <header className="sticky top-0 z-50 bg-header-bg text-header-text shadow-lg">
+                <div className="max-w-7xl mx-auto px-4">
+                    <div className="flex items-center justify-between h-16">
+                        {/* Logo */}
+                        <Link href="/" className="flex items-center gap-2 group">
+                            <Image
+                                src="/logo-quranonline.id.png"
+                                alt="Quran Online"
+                                width={44}
+                                height={44}
+                            />
+                            <span className="font-bold text-lg tracking-wide">Quran Online</span>
+                        </Link>
 
-                    {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-6">
-                        <Link
-                            href="/"
-                            className="text-white/80 hover:text-white transition-colors font-medium flex items-center gap-1"
-                        >
-                            <i className="ri-home-4-line"></i>
-                            Beranda
-                        </Link>
-                        <Link
-                            href="/bookmarks"
-                            className="text-white/80 hover:text-white transition-colors font-medium flex items-center gap-1"
-                        >
-                            <i className="ri-bookmark-line"></i>
-                            Bookmark
-                        </Link>
-                        <Link
-                            href="/search"
-                            className="text-white/80 hover:text-white transition-colors font-medium flex items-center gap-1"
-                        >
-                            <i className="ri-search-line"></i>
-                            Cari Ayat
-                        </Link>
-                        <Link
-                            href="/settings"
-                            className="text-white/80 hover:text-white transition-colors font-medium flex items-center gap-1"
-                        >
-                            <i className="ri-settings-3-line"></i>
-                            Pengaturan
-                        </Link>
-                    </nav>
-
-                    {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
-                        aria-label="Toggle menu"
-                    >
-                        <i className={`${isMenuOpen ? 'ri-close-line' : 'ri-menu-line'} text-2xl`}></i>
-                    </button>
-                </div>
-
-                {/* Mobile Menu */}
-                {isMenuOpen && (
-                    <nav className="md:hidden py-4 border-t border-white/10 fade-in">
-                        <div className="flex flex-col gap-2">
+                        {/* Desktop Navigation */}
+                        <nav className="hidden md:flex items-center gap-6">
                             <Link
                                 href="/"
-                                className="px-4 py-3 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-2"
-                                onClick={() => setIsMenuOpen(false)}
+                                className={`transition-colors font-medium flex items-center gap-1 ${isActive('/') ? 'text-white' : 'text-white/80 hover:text-white'}`}
                             >
                                 <i className="ri-home-4-line"></i>
                                 Beranda
                             </Link>
                             <Link
                                 href="/bookmarks"
-                                className="px-4 py-3 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-2"
-                                onClick={() => setIsMenuOpen(false)}
+                                className={`transition-colors font-medium flex items-center gap-1 ${isActive('/bookmarks') ? 'text-white' : 'text-white/80 hover:text-white'}`}
                             >
                                 <i className="ri-bookmark-line"></i>
                                 Bookmark
                             </Link>
                             <Link
                                 href="/search"
-                                className="px-4 py-3 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-2"
-                                onClick={() => setIsMenuOpen(false)}
+                                className={`transition-colors font-medium flex items-center gap-1 ${isActive('/search') ? 'text-white' : 'text-white/80 hover:text-white'}`}
                             >
                                 <i className="ri-search-line"></i>
                                 Cari Ayat
                             </Link>
                             <Link
                                 href="/settings"
-                                className="px-4 py-3 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-2"
-                                onClick={() => setIsMenuOpen(false)}
+                                className={`transition-colors font-medium flex items-center gap-1 ${isActive('/settings') ? 'text-white' : 'text-white/80 hover:text-white'}`}
                             >
                                 <i className="ri-settings-3-line"></i>
                                 Pengaturan
                             </Link>
-                        </div>
-                    </nav>
-                )}
-            </div>
-        </header>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+
+            {/* Mobile Bottom Navigation */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-header-bg text-header-text shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-white/10 rounded-t-2xl">
+                <div className="max-w-md mx-auto px-4">
+                    <div className="flex items-center justify-between h-14">
+                        <Link
+                            href="/"
+                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all ${isActive('/') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                        >
+                            <i className={`ri-home-4-${isActive('/') ? 'fill' : 'line'} text-[20px]`}></i>
+                            <span className="text-[10px] font-medium">Beranda</span>
+                        </Link>
+                        <Link
+                            href="/bookmarks"
+                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all ${isActive('/bookmarks') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                        >
+                            <i className={`ri-bookmark-${isActive('/bookmarks') ? 'fill' : 'line'} text-[20px]`}></i>
+                            <span className="text-[10px] font-medium">Bookmark</span>
+                        </Link>
+                        <Link
+                            href="/search"
+                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all ${isActive('/search') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                        >
+                            <i className={`ri-search-${isActive('/search') ? 'fill' : 'line'} text-[20px]`}></i>
+                            <span className="text-[10px] font-medium">Cari</span>
+                        </Link>
+                        <Link
+                            href="/settings"
+                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all ${isActive('/settings') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                        >
+                            <i className={`ri-settings-3-${isActive('/settings') ? 'fill' : 'line'} text-[20px]`}></i>
+                            <span className="text-[10px] font-medium">Pengaturan</span>
+                        </Link>
+                    </div>
+                </div>
+            </nav>
+        </>
     );
 }

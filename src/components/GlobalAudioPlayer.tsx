@@ -262,7 +262,7 @@ export default function GlobalAudioPlayer() {
     return (
         <>
             {showPlayer && (
-                <div className="fixed bottom-0 left-0 right-0 bg-card-bg border-t border-card-border shadow-lg z-50 fade-in">
+                <div className="fixed bottom-14 md:bottom-0 left-0 right-0 bg-card-bg border-t border-card-border shadow-lg z-40 fade-in">
 
                     {/* Show error if audio fails to play */}
                     {playError && (

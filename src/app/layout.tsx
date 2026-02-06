@@ -208,7 +208,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AudioProvider>
             <Navbar />
-            <main className="min-h-screen pb-20">
+            <main className="min-h-screen pb-24 md:pb-20">
               {children}
             </main>
             <GlobalAudioPlayer />

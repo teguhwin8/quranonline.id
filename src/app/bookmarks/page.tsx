@@ -98,7 +98,7 @@ export default function BookmarksPage() {
                                         </div>
 
                                         {/* Arabic Text */}
-                                        <p className="arabic-text text-xl mb-3 line-clamp-2">
+                                        <p className="font-arabic text-xl mb-3 line-clamp-2">
                                             {bookmark.arabicText}
                                         </p>
 
