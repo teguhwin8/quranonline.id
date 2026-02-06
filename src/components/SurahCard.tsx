@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import Link from 'next/link';
 import { Surah } from '@/types/quran';
+import { SURAH_MEANING_ID } from '@/lib/surah-translations';
 
 interface SurahCardProps {
     surah: Surah;
@@ -25,7 +26,7 @@ function SurahCard({ surah }: SurahCardProps) {
                                     {surah.englishName}
                                 </h3>
                                 <p className="text-sm text-foreground-muted">
-                                    {surah.englishNameTranslation}
+                                    {SURAH_MEANING_ID[surah.number] || surah.englishNameTranslation}
                                 </p>
                             </div>
 
