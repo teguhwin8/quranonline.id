@@ -4,7 +4,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
-export default function Navbar() {
+interface NavbarProps {
+    onAIClick?: () => void;
+    isAIOpen?: boolean;
+}
+
+export default function Navbar({ onAIClick, isAIOpen }: NavbarProps) {
     const pathname = usePathname();
 
     const isActive = (path: string) => {
@@ -64,39 +69,55 @@ export default function Navbar() {
                 </div>
             </header>
 
-            {/* Mobile Bottom Navigation */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-header-bg text-header-text shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-white/10 rounded-t-2xl">
-                <div className="max-w-md mx-auto px-4">
-                    <div className="flex items-center justify-between h-14">
-                        <Link
-                            href="/"
-                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all ${isActive('/') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+            {/* Mobile Bottom Navigation - 5 equal items */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-header-bg text-header-text shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-white/10">
+                <div className="flex items-end h-16">
+                    {/* 1. Beranda */}
+                    <Link
+                        href="/"
+                        className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                    >
+                        <i className={`ri-home-4-${isActive('/') ? 'fill' : 'line'} text-xl`}></i>
+                        <span className="text-[10px] font-medium">Beranda</span>
+                    </Link>
+
+                    {/* 2. Bookmark */}
+                    <Link
+                        href="/bookmarks"
+                        className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/bookmarks') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                    >
+                        <i className={`ri-bookmark-${isActive('/bookmarks') ? 'fill' : 'line'} text-xl`}></i>
+                        <span className="text-[10px] font-medium">Bookmark</span>
+                    </Link>
+
+                    {/* 3. AI - Center with special styling */}
+                    <div className="flex-1 flex items-center justify-center pb-2">
+                        <button
+                            onClick={onAIClick}
+                            className="ai-nav-btn"
+                            aria-label={isAIOpen ? 'Tutup AI Chat' : 'Buka AI Chat'}
                         >
-                            <i className={`ri-home-4-${isActive('/') ? 'fill' : 'line'} text-[20px]`}></i>
-                            <span className="text-[10px] font-medium">Beranda</span>
-                        </Link>
-                        <Link
-                            href="/bookmarks"
-                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all ${isActive('/bookmarks') ? 'text-gold' : 'text-white/60 active:text-white'}`}
-                        >
-                            <i className={`ri-bookmark-${isActive('/bookmarks') ? 'fill' : 'line'} text-[20px]`}></i>
-                            <span className="text-[10px] font-medium">Bookmark</span>
-                        </Link>
-                        <Link
-                            href="/search"
-                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all ${isActive('/search') ? 'text-gold' : 'text-white/60 active:text-white'}`}
-                        >
-                            <i className={`ri-search-${isActive('/search') ? 'fill' : 'line'} text-[20px]`}></i>
-                            <span className="text-[10px] font-medium">Cari</span>
-                        </Link>
-                        <Link
-                            href="/settings"
-                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all ${isActive('/settings') ? 'text-gold' : 'text-white/60 active:text-white'}`}
-                        >
-                            <i className={`ri-settings-3-${isActive('/settings') ? 'fill' : 'line'} text-[20px]`}></i>
-                            <span className="text-[10px] font-medium">Pengaturan</span>
-                        </Link>
+                            <i className={`${isAIOpen ? 'ri-close-line' : 'ri-sparkling-2-fill'} text-lg`}></i>
+                        </button>
                     </div>
+
+                    {/* 4. Cari */}
+                    <Link
+                        href="/search"
+                        className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/search') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                    >
+                        <i className={`ri-search-${isActive('/search') ? 'fill' : 'line'} text-xl`}></i>
+                        <span className="text-[10px] font-medium">Cari</span>
+                    </Link>
+
+                    {/* 5. Pengaturan */}
+                    <Link
+                        href="/settings"
+                        className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/settings') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                    >
+                        <i className={`ri-settings-3-${isActive('/settings') ? 'fill' : 'line'} text-xl`}></i>
+                        <span className="text-[10px] font-medium">Pengaturan</span>
+                    </Link>
                 </div>
             </nav>
         </>

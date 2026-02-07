@@ -1,7 +1,7 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
-import { useState, useRef, useEffect, FormEvent, ReactNode } from 'react';
+import { useRef, useEffect, FormEvent, ReactNode } from 'react';
 
 // Helper to get text content from message
 function getMessageText(message: { content?: string; parts?: Array<{ type: string; text?: string }> }): string {
@@ -47,9 +47,14 @@ function parseMarkdown(text: string): ReactNode[] {
     });
 }
 
-export default function AIChat() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [inputValue, setInputValue] = useState('');
+interface AIChatProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onToggle: () => void;
+}
+
+export default function AIChat({ isOpen, onClose, onToggle }: AIChatProps) {
+    const [inputValue, setInputValue] = React.useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // useChat defaults to /api/chat endpoint
@@ -82,10 +87,10 @@ export default function AIChat() {
 
     return (
         <>
-            {/* Floating Action Button */}
+            {/* Floating Action Button - Desktop only */}
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="ai-fab"
+                onClick={onToggle}
+                className="ai-fab hidden md:flex"
                 aria-label={isOpen ? 'Tutup AI Chat' : 'Buka AI Chat'}
             >
                 <i className={`${isOpen ? 'ri-close-line' : 'ri-sparkling-2-fill'} text-2xl`}></i>
@@ -101,7 +106,7 @@ export default function AIChat() {
                             <span className="font-semibold">Tanya AI tentang Al-Quran</span>
                         </div>
                         <button
-                            onClick={() => setIsOpen(false)}
+                            onClick={onClose}
                             className="icon-btn-sm"
                             aria-label="Tutup"
                         >
@@ -212,3 +217,6 @@ export default function AIChat() {
         </>
     );
 }
+
+// Need to import React for useState
+import React from 'react';

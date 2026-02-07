@@ -1,12 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Scheherazade_New, Amiri } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+import ClientLayout from "@/components/ClientLayout";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AudioProvider } from "@/hooks/useAudio";
-import GlobalAudioPlayer from "@/components/GlobalAudioPlayer";
 import Copyright from "@/components/Copyright";
-import AIChat from "@/components/AIChat";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -208,12 +206,9 @@ export default function RootLayout({
       <body className={`${inter.variable} ${scheherazade.variable} ${amiri.variable} antialiased`}>
         <ThemeProvider>
           <AudioProvider>
-            <Navbar />
-            <main className="min-h-screen pb-24 md:pb-20">
+            <ClientLayout>
               {children}
-            </main>
-            <GlobalAudioPlayer />
-            <AIChat />
+            </ClientLayout>
             <footer className="bg-card-bg border-t border-card-border py-8 text-center text-foreground-muted text-sm">
               <div className="max-w-7xl mx-auto px-4">
                 <Copyright />
