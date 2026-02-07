@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/hooks/useTheme";
 import { AudioProvider } from "@/hooks/useAudio";
 import GlobalAudioPlayer from "@/components/GlobalAudioPlayer";
 import Copyright from "@/components/Copyright";
+import AIChat from "@/components/AIChat";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -212,6 +213,7 @@ export default function RootLayout({
               {children}
             </main>
             <GlobalAudioPlayer />
+            <AIChat />
             <footer className="bg-card-bg border-t border-card-border py-8 text-center text-foreground-muted text-sm">
               <div className="max-w-7xl mx-auto px-4">
                 <Copyright />

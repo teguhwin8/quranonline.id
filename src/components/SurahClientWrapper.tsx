@@ -35,13 +35,21 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
             const ayahNumber = parseInt(hash.replace('#ayah-', ''), 10);
             if (!isNaN(ayahNumber)) {
                 const index = ayahs.findIndex(a => a.numberInSurah === ayahNumber);
-                if (index !== -1 && ayahRefs.current[index]) {
-                    setTimeout(() => {
-                        ayahRefs.current[index]?.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                        });
-                    }, 150);
+                if (index !== -1) {
+                    // Try scrolling with increasing delays to handle slow renders
+                    const tryScroll = (attempt: number) => {
+                        const element = ayahRefs.current[index];
+                        if (element) {
+                            element.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center',
+                            });
+                        } else if (attempt < 5) {
+                            // Retry with increasing delay
+                            setTimeout(() => tryScroll(attempt + 1), 200 * attempt);
+                        }
+                    };
+                    setTimeout(() => tryScroll(1), 300);
                     return true;
                 }
             }
@@ -55,7 +63,7 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
         if (!hasHash) {
             window.scrollTo(0, 0);
         }
-    }, [pathname, scrollToHashAyah]);
+    }, [pathname, scrollToHashAyah, initialized]);
 
     // Listen for hash changes (e.g., when clicking bookmark links)
     useEffect(() => {
