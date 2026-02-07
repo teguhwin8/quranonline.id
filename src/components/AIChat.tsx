@@ -93,7 +93,7 @@ export default function AIChat({ isOpen, onClose, onToggle }: AIChatProps) {
                 className="ai-fab hidden md:flex"
                 aria-label={isOpen ? 'Tutup AI Chat' : 'Buka AI Chat'}
             >
-                <i className={`${isOpen ? 'ri-close-line' : 'ri-sparkling-2-fill'} text-2xl`}></i>
+                <i className={`${isOpen ? 'ri-close-line' : 'ri-sparkling-2-fill'} text-xl`}></i>
             </button>
 
             {/* Chat Panel */}

@@ -1,90 +1,121 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import Link from 'next/link';
 
 type ThemeOption = 'light' | 'dark' | 'system';
+type ViewMode = 'per-ayat' | 'per-surat';
 
-const themeOptions: { value: ThemeOption; label: string; icon: string }[] = [
-    { value: 'light', label: 'Terang', icon: 'ri-sun-line' },
-    { value: 'dark', label: 'Gelap', icon: 'ri-moon-line' },
-    { value: 'system', label: 'Sistem', icon: 'ri-computer-line' },
-];
+const VIEW_MODE_KEY = 'surah-view-mode';
 
 export default function SettingsPage() {
     const { theme, setTheme, resolvedTheme } = useTheme();
+    const [viewMode, setViewMode] = useState<ViewMode>('per-ayat');
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        const saved = localStorage.getItem(VIEW_MODE_KEY) as ViewMode | null;
+        if (saved && (saved === 'per-ayat' || saved === 'per-surat')) {
+            setViewMode(saved);
+        }
+    }, []);
+
+    const handleViewModeChange = (mode: ViewMode) => {
+        setViewMode(mode);
+        localStorage.setItem(VIEW_MODE_KEY, mode);
+    };
 
     return (
-        <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="max-w-lg mx-auto px-4 py-6">
             {/* Header */}
-            <div className="mb-8">
+            <div className="mb-6">
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-foreground-muted hover:text-foreground mb-4 transition-colors"
+                    className="inline-flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground mb-3 transition-colors"
                 >
                     <i className="ri-arrow-left-line"></i>
                     Kembali
                 </Link>
-                <h1 className="text-2xl font-bold text-foreground">
-                    Pengaturan
-                </h1>
-                <p className="text-foreground-muted">
-                    Sesuaikan tampilan aplikasi
-                </p>
+                <h1 className="text-xl font-bold text-foreground">Pengaturan</h1>
             </div>
 
-            {/* Theme Settings */}
-            <section className="card">
-                <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <i className="ri-palette-line text-primary"></i>
-                    Tema Tampilan
-                </h2>
-                <p className="text-foreground-muted text-sm mb-6">
-                    Pilih tema yang nyaman untuk mata Anda. Mode sistem akan mengikuti pengaturan perangkat.
-                </p>
-
-                <div className="grid grid-cols-3 gap-3">
-                    {themeOptions.map((option) => (
-                        <button
-                            key={option.value}
-                            onClick={() => setTheme(option.value)}
-                            className={`
-                                flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all
-                                ${theme === option.value
-                                    ? 'border-primary bg-primary/10 text-primary'
-                                    : 'border-card-border hover:border-primary/50 text-foreground-muted hover:text-foreground'
-                                }
-                            `}
-                        >
-                            <i className={`${option.icon} text-2xl`}></i>
-                            <span className="text-sm font-medium">{option.label}</span>
-                            {theme === option.value && (
-                                <i className="ri-check-line text-primary"></i>
-                            )}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-card-border">
-                    <p className="text-sm text-foreground-muted">
-                        Tema aktif saat ini: <span className="font-medium text-foreground">{resolvedTheme === 'dark' ? 'Gelap' : 'Terang'}</span>
-                    </p>
-                </div>
-            </section>
-
-            {/* App Info */}
-            <section className="card mt-6">
-                <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <i className="ri-information-line text-primary"></i>
-                    Tentang Aplikasi
-                </h2>
-                <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                        <span className="text-foreground-muted">Versi</span>
-                        <span className="text-foreground">1.0.0</span>
+            {/* Settings Card */}
+            <div className="card space-y-5">
+                {/* Theme Setting */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <i className="ri-palette-line text-primary"></i>
+                        <span className="text-sm font-medium">Tema</span>
+                        <span className="text-xs text-foreground-muted">({resolvedTheme === 'dark' ? 'Gelap' : 'Terang'})</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span className="text-foreground-muted">Pengembang</span>
+                    <div className="inline-flex rounded-lg bg-background-alt border border-card-border p-0.5">
+                        {[
+                            { value: 'light' as ThemeOption, icon: 'ri-sun-line', label: 'Terang' },
+                            { value: 'dark' as ThemeOption, icon: 'ri-moon-line', label: 'Gelap' },
+                            { value: 'system' as ThemeOption, icon: 'ri-computer-line', label: 'Sistem' },
+                        ].map((opt) => (
+                            <button
+                                key={opt.value}
+                                onClick={() => setTheme(opt.value)}
+                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${theme === opt.value
+                                        ? 'bg-primary text-white'
+                                        : 'text-foreground-muted hover:text-foreground'
+                                    }`}
+                                title={opt.label}
+                            >
+                                <i className={opt.icon}></i>
+                                <span className="hidden sm:inline">{opt.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <hr className="border-card-border" />
+
+                {/* View Mode Setting */}
+                {mounted && (
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <i className="ri-layout-line text-primary"></i>
+                            <span className="text-sm font-medium">Tampilan Surat</span>
+                        </div>
+                        <div className="inline-flex rounded-lg bg-background-alt border border-card-border p-0.5">
+                            <button
+                                onClick={() => handleViewModeChange('per-ayat')}
+                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${viewMode === 'per-ayat'
+                                        ? 'bg-primary text-white'
+                                        : 'text-foreground-muted hover:text-foreground'
+                                    }`}
+                            >
+                                <i className="ri-list-check-2"></i>
+                                Per Ayat
+                            </button>
+                            <button
+                                onClick={() => handleViewModeChange('per-surat')}
+                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${viewMode === 'per-surat'
+                                        ? 'bg-primary text-white'
+                                        : 'text-foreground-muted hover:text-foreground'
+                                    }`}
+                            >
+                                <i className="ri-file-text-line"></i>
+                                Per Surat
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                <hr className="border-card-border" />
+
+                {/* App Info - Compact */}
+                <div className="text-xs text-foreground-muted space-y-1.5">
+                    <div className="flex items-center gap-2">
+                        <i className="ri-information-line text-primary"></i>
+                        <span className="font-medium text-foreground">Quran Online</span>
+                        <span>v1.0.0</span>
+                    </div>
+                    <div className="flex items-center gap-3 pl-5">
                         <a
                             href="https://www.linkedin.com/in/teguhwin8/"
                             target="_blank"
@@ -93,9 +124,7 @@ export default function SettingsPage() {
                         >
                             Teguh Widodo
                         </a>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-foreground-muted">Sumber Data</span>
+                        <span>•</span>
                         <a
                             href="https://alquran.cloud"
                             target="_blank"
@@ -106,7 +135,7 @@ export default function SettingsPage() {
                         </a>
                     </div>
                 </div>
-            </section>
+            </div>
         </div>
     );
 }

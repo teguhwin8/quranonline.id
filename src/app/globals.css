@@ -130,6 +130,28 @@ body {
   text-align: right;
 }
 
+/* Continuous Arabic View - Per-Surat mode */
+.continuous-arabic-view {
+  font-family: var(--font-arabic);
+  font-size: 2.25rem;
+  line-height: 2.8;
+  direction: rtl;
+  text-align: justify;
+  color: var(--arabic-text);
+}
+
+/* Spacing for ayah markers in continuous view */
+.continuous-arabic-view .ayah-end-marker {
+  margin: 0 0.4em;
+}
+
+@media (max-width: 768px) {
+  .continuous-arabic-view {
+    font-size: 1.75rem;
+    line-height: 2.4;
+  }
+}
+
 /* Surah Name in Arabic */
 .surah-name-arabic {
   font-family: var(--font-arabic);
@@ -549,25 +571,27 @@ html.dark .search-more-link:hover {
   .ai-fab {
     display: flex;
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    width: 4rem;
-    height: 4rem;
+    bottom: 8rem;
+    /* High enough to clear the audio player */
+    right: 1.5rem;
+    width: 3rem;
+    height: 3rem;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
     color: white;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px rgba(27, 94, 32, 0.4);
+    box-shadow: 0 4px 16px rgba(27, 94, 32, 0.35);
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 50;
+    z-index: 35;
+    /* Lower than player z-40 */
     border: none;
   }
 
   .ai-fab:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 25px rgba(27, 94, 32, 0.5);
+    box-shadow: 0 6px 20px rgba(27, 94, 32, 0.45);
   }
 }
 

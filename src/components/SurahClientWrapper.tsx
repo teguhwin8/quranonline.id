@@ -3,9 +3,19 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import AyahCard from '@/components/AyahCard';
+import { ViewMode } from '@/components/SurahViewToggle';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useAudio } from '@/hooks/useAudio';
 import { AyahWithTranslation, SurahDetail } from '@/types/quran';
+
+// Convert Western numerals to Eastern Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩)
+const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+const toArabicNumber = (num: number): string => {
+    return num.toString().split('').map(digit => arabicNumerals[parseInt(digit)]).join('');
+};
+
+// LocalStorage key for view mode preference
+const VIEW_MODE_KEY = 'surah-view-mode';
 
 interface SurahClientWrapperProps {
     surah: SurahDetail;
@@ -18,6 +28,21 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
     const ayahRefs = useRef<(HTMLDivElement | null)[]>([]);
     const pathname = usePathname();
     const [initialized, setInitialized] = useState(false);
+    const [viewMode, setViewMode] = useState<ViewMode>('per-ayat');
+
+    // Load view mode from localStorage on mount
+    useEffect(() => {
+        const savedViewMode = localStorage.getItem(VIEW_MODE_KEY) as ViewMode | null;
+        if (savedViewMode && (savedViewMode === 'per-ayat' || savedViewMode === 'per-surat')) {
+            setViewMode(savedViewMode);
+        }
+    }, []);
+
+    // Save view mode to localStorage when it changes
+    const handleViewModeChange = useCallback((mode: ViewMode) => {
+        setViewMode(mode);
+        localStorage.setItem(VIEW_MODE_KEY, mode);
+    }, []);
 
     // Memoize surah data for stable references
     const surahNumber = surah.number;
@@ -189,37 +214,84 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
 
     return (
         <>
-            {/* Play All Button */}
-            <div className="flex justify-center mb-8">
+            {/* Compact Controls Row */}
+            <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
+                {/* View Mode Toggle - Compact */}
+                <div className="inline-flex items-center gap-2">
+                    <span className="text-xs text-foreground-muted hidden sm:inline">Tampilan:</span>
+                    <div className="inline-flex rounded-lg bg-card-bg border border-card-border p-0.5">
+                        <button
+                            onClick={() => handleViewModeChange('per-ayat')}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'per-ayat'
+                                ? 'bg-primary text-white'
+                                : 'text-foreground-muted hover:text-foreground'
+                                }`}
+                        >
+                            <i className="ri-list-check-2 mr-1"></i>
+                            Per Ayat
+                        </button>
+                        <button
+                            onClick={() => handleViewModeChange('per-surat')}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'per-surat'
+                                ? 'bg-primary text-white'
+                                : 'text-foreground-muted hover:text-foreground'
+                                }`}
+                        >
+                            <i className="ri-file-text-line mr-1"></i>
+                            Per Surat
+                        </button>
+                    </div>
+                </div>
+
+                {/* Play All Button - Compact */}
                 <button
                     onClick={handlePlayAll}
-                    className="btn btn-primary"
+                    className="btn btn-primary text-sm py-2 px-4"
                 >
-                    <i className="ri-play-fill text-lg"></i>
-                    Putar Semua Ayat
+                    <i className="ri-play-fill"></i>
+                    Putar Semua
                 </button>
             </div>
 
-            {/* Ayah List */}
-            <div className="space-y-6">
-                {ayahs.map((ayah, index) => (
-                    <div
-                        key={ayah.number}
-                        id={`ayah-${ayah.numberInSurah}`}
-                        ref={(el) => { ayahRefs.current[index] = el; }}
-                    >
-                        <AyahCard
-                            ayah={ayah}
-                            surahNumber={surahNumber}
-                            surahName={surahName}
-                            isPlaying={ayahStates[index].isPlaying}
-                            isBookmarked={ayahStates[index].isBookmarked}
-                            onPlayAudio={createPlayHandler(index)}
-                            onToggleBookmark={createBookmarkHandler(ayah)}
-                        />
-                    </div>
-                ))}
-            </div>
+            {/* Conditional View Modes */}
+            {viewMode === 'per-ayat' ? (
+                /* Per-Ayat View: Individual AyahCards */
+                <div className="space-y-6">
+                    {ayahs.map((ayah, index) => (
+                        <div
+                            key={ayah.number}
+                            id={`ayah-${ayah.numberInSurah}`}
+                            ref={(el) => { ayahRefs.current[index] = el; }}
+                        >
+                            <AyahCard
+                                ayah={ayah}
+                                surahNumber={surahNumber}
+                                surahName={surahName}
+                                isPlaying={ayahStates[index].isPlaying}
+                                isBookmarked={ayahStates[index].isBookmarked}
+                                onPlayAudio={createPlayHandler(index)}
+                                onToggleBookmark={createBookmarkHandler(ayah)}
+                            />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                /* Per-Surat View: Continuous Arabic text */
+                <div className="card fade-in">
+                    <p className="continuous-arabic-view font-arabic" dir="rtl">
+                        {ayahs.map((ayah, index) => (
+                            <span key={ayah.number} className='font-arabic'>
+                                {ayah.arabic}
+                                {' '}
+                                <span className="ayah-end-marker">
+                                    {toArabicNumber(ayah.numberInSurah)}
+                                </span>
+                                {index < ayahs.length - 1 && ' '}
+                            </span>
+                        ))}
+                    </p>
+                </div>
+            )}
         </>
     );
 }

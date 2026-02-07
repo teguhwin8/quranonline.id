@@ -4,7 +4,7 @@ import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AudioProvider } from "@/hooks/useAudio";
-import Copyright from "@/components/Copyright";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -210,17 +210,7 @@ export default function RootLayout({
             <ClientLayout>
               {children}
             </ClientLayout>
-            <footer className="bg-card-bg border-t border-card-border py-8 text-center text-foreground-muted text-sm">
-              <div className="max-w-7xl mx-auto px-4">
-                <Copyright />
-                <p className="mb-2">
-                  Dibuat dengan ❤️ oleh <a href="https://www.linkedin.com/in/teguhwin8/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Teguh Widodo</a>
-                </p>
-                <p>
-                  Sumber data: <a href="https://alquran.cloud" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Al-Quran Cloud API</a>
-                </p>
-              </div>
-            </footer>
+            <Footer />
           </AudioProvider>
         </ThemeProvider>
       </body>

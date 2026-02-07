@@ -154,7 +154,7 @@ async function SurahContent({ surahNumber }: { surahNumber: number }) {
                 {/* Bismillah - compact */}
                 {showBismillah && (
                     <div className="text-center py-3 mt-2">
-                        <span className="font-arabic text-lg md:text-xl text-primary">
+                        <span className="font-arabic text-3xl md:text-4xl text-primary">
                             {BISMILLAH}
                         </span>
                     </div>
