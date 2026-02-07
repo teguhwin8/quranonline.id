@@ -42,8 +42,8 @@ export default async function HomePage() {
           Quran Online Indonesia
         </h1>
         <p className="text-lg text-foreground-muted max-w-2xl mx-auto">
-          Baca Al-Quran lengkap 114 surah dengan terjemahan Bahasa Indonesia,
-          dengarkan audio murottal, dan simpan ayat favorit Anda. 100% gratis.
+          Baca Al-Quran 114 surah dengan terjemahan Indonesia, audio murottal,
+          dan <strong className="text-primary">AI Tanya Jawab</strong> untuk membantu memahami ayat-ayat Al-Quran. 100% gratis.
         </p>
       </section>
 

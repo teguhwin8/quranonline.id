@@ -39,22 +39,22 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://quranonline.id"),
   title: {
-    default: "Quran Online - Baca Al-Quran Digital dengan Terjemahan Indonesia",
+    default: "Quran Online - Al-Quran Digital dengan AI Tanya Jawab & Terjemahan Indonesia",
     template: "%s | Quran Online",
   },
-  description: "Baca Al-Quran online lengkap 114 surah dengan terjemahan Bahasa Indonesia, audio murottal Al-Afasy, fitur bookmark, dan mode gelap. 100% gratis tanpa iklan.",
+  description: "Baca Al-Quran online 114 surah dengan AI Tanya Jawab, terjemahan Bahasa Indonesia, audio murottal, dan fitur bookmark. Tanya apa saja tentang Al-Quran! 100% gratis.",
   keywords: [
     "quran online",
     "al-quran",
     "baca quran",
     "quran terjemahan indonesia",
+    "tanya jawab quran ai",
+    "chatbot quran",
     "murottal quran",
     "al quran digital",
     "quran lengkap",
     "surah al-fatihah",
     "surah yasin",
-    "juz amma",
-    "tadarus quran",
     "ngaji online",
   ],
   authors: [{ name: "Teguh Widodo", url: "https://www.linkedin.com/in/teguhwin8/" }],
@@ -70,8 +70,8 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: "https://quranonline.id",
     siteName: "Quran Online",
-    title: "Quran Online - Baca Al-Quran Digital dengan Terjemahan Indonesia",
-    description: "Baca Al-Quran online lengkap 114 surah dengan terjemahan Bahasa Indonesia, audio murottal, dan fitur bookmark. Gratis!",
+    title: "Quran Online - Al-Quran Digital dengan AI Tanya Jawab",
+    description: "Baca Al-Quran online 114 surah dengan AI Tanya Jawab, terjemahan Indonesia, audio murottal. Tanya apa saja tentang Al-Quran!",
     images: [
       {
         url: "/og-image.png",
@@ -83,8 +83,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Quran Online - Baca Al-Quran Digital",
-    description: "Baca Al-Quran online lengkap dengan terjemahan Indonesia dan audio murottal. Gratis!",
+    title: "Quran Online - Al-Quran Digital dengan AI",
+    description: "Baca Al-Quran online dengan AI Tanya Jawab dan terjemahan Indonesia. Gratis!",
     images: ["/og-image.png"],
   },
   robots: {
