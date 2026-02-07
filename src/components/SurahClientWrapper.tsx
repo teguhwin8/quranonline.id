@@ -6,6 +6,7 @@ import AyahCard from '@/components/AyahCard';
 import { ViewMode } from '@/components/SurahViewToggle';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useAudio } from '@/hooks/useAudio';
+import { generateSurahPDF } from '@/lib/generateSurahPDF';
 import { AyahWithTranslation, SurahDetail } from '@/types/quran';
 
 // Convert Western numerals to Eastern Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩)
@@ -250,6 +251,16 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
                 >
                     <i className="ri-play-fill"></i>
                     Putar Semua
+                </button>
+
+                {/* Download PDF Button */}
+                <button
+                    onClick={() => generateSurahPDF({ surah, ayahs, includeBismillah: surah.number !== 1 && surah.number !== 9 })}
+                    className="btn text-sm py-2 px-4 bg-card-bg border border-card-border text-foreground hover:bg-background-alt"
+                    title="Download PDF"
+                >
+                    <i className="ri-download-2-line"></i>
+                    <span className="hidden sm:inline">PDF</span>
                 </button>
             </div>
 
