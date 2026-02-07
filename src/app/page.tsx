@@ -36,7 +36,7 @@ export default async function HomePage() {
       {/* Hero Section */}
       <section className="text-center mb-12 fade-in">
         <div className="mb-6">
-          <span className="bismillah text-4xl md:text-5xl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>
+          <span className="font-arabic text-3xl md:text-4xl text-primary">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
           Quran Online Indonesia
