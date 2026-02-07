@@ -30,6 +30,7 @@ const amiri = Amiri({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#1b5e20" },
     { media: "(prefers-color-scheme: dark)", color: "#1a2f23" },

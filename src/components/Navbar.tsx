@@ -70,7 +70,7 @@ export default function Navbar({ onAIClick, isAIOpen }: NavbarProps) {
             </header>
 
             {/* Mobile Bottom Navigation - 5 equal items */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-header-bg text-header-text shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-white/10">
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-header-bg text-header-text shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
                 <div className="flex items-end h-16">
                     {/* 1. Beranda */}
                     <Link
