@@ -215,16 +215,16 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
 
     return (
         <>
-            {/* Compact Controls Row */}
-            <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
-                {/* View Mode Toggle - Compact */}
+            {/* Unified Controls Toolbar */}
+            <div className="controls-toolbar mb-8">
+                {/* View Mode Toggle */}
                 <div className="inline-flex items-center gap-2">
                     <span className="text-xs text-foreground-muted hidden sm:inline">Tampilan:</span>
-                    <div className="inline-flex rounded-lg bg-card-bg border border-card-border p-0.5">
+                    <div className="inline-flex rounded-lg bg-background-alt p-0.5">
                         <button
                             onClick={() => handleViewModeChange('per-ayat')}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'per-ayat'
-                                ? 'bg-primary text-white'
+                            className={`btn-compact rounded-md transition-all ${viewMode === 'per-ayat'
+                                ? 'bg-primary text-white shadow-sm'
                                 : 'text-foreground-muted hover:text-foreground'
                                 }`}
                         >
@@ -233,8 +233,8 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
                         </button>
                         <button
                             onClick={() => handleViewModeChange('per-surat')}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'per-surat'
-                                ? 'bg-primary text-white'
+                            className={`btn-compact rounded-md transition-all ${viewMode === 'per-surat'
+                                ? 'bg-primary text-white shadow-sm'
                                 : 'text-foreground-muted hover:text-foreground'
                                 }`}
                         >
@@ -244,24 +244,27 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
                     </div>
                 </div>
 
-                {/* Play All Button - Compact */}
-                <button
-                    onClick={handlePlayAll}
-                    className="btn btn-primary text-sm py-2 px-4"
-                >
-                    <i className="ri-play-fill"></i>
-                    Putar Semua
-                </button>
+                {/* Action Buttons Group */}
+                <div className="flex items-center gap-2">
+                    {/* Play All Button */}
+                    <button
+                        onClick={handlePlayAll}
+                        className="btn btn-primary btn-compact"
+                    >
+                        <i className="ri-play-fill"></i>
+                        <span>Putar Semua</span>
+                    </button>
 
-                {/* Download PDF Button */}
-                <button
-                    onClick={() => generateSurahPDF({ surah, ayahs, includeBismillah: surah.number !== 1 && surah.number !== 9 })}
-                    className="btn text-sm py-2 px-4 bg-card-bg border border-card-border text-foreground hover:bg-background-alt"
-                    title="Download PDF"
-                >
-                    <i className="ri-download-2-line"></i>
-                    <span className="hidden sm:inline">PDF</span>
-                </button>
+                    {/* Download PDF Button */}
+                    <button
+                        onClick={() => generateSurahPDF({ surah, ayahs, includeBismillah: surah.number !== 1 && surah.number !== 9 })}
+                        className="btn btn-secondary btn-compact"
+                        title="Download PDF"
+                    >
+                        <i className="ri-download-2-line"></i>
+                        <span className="hidden sm:inline">PDF</span>
+                    </button>
+                </div>
             </div>
 
             {/* Conditional View Modes */}

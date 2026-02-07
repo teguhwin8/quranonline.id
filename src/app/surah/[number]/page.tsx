@@ -131,42 +131,52 @@ async function SurahContent({ surahNumber }: { surahNumber: number }) {
             />
 
             {/* Compact Surah Header */}
-            <header className="fade-in mb-6">
-                {/* Main header row */}
-                <div className="flex items-center justify-between gap-4 py-4 px-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-xl">
-                    {/* Left: Arabic name */}
-                    <div className="text-right flex-shrink-0">
-                        <span className="font-arabic text-2xl md:text-3xl text-primary-dark">
-                            {surah.name}
-                        </span>
-                    </div>
-
-                    {/* Center: Info */}
-                    <div className="text-center flex-1 min-w-0">
-                        <div className="text-xs text-primary font-medium mb-0.5">
-                            Surah {surah.number}
+            <header className="fade-in mb-8">
+                {/* Main header card */}
+                <div className="surah-header-card">
+                    <div className="flex items-center justify-between gap-6">
+                        {/* Left: Arabic name */}
+                        <div className="flex-shrink-0">
+                            <span className="font-arabic text-2xl md:text-3xl text-primary-dark leading-none">
+                                {surah.name}
+                            </span>
                         </div>
-                        <h1 className="text-lg md:text-xl font-bold text-foreground truncate">
-                            {surah.englishName}
-                        </h1>
-                        <p className="text-xs text-foreground-muted truncate">
-                            {SURAH_MEANING_ID[surahNumber] || surah.englishNameTranslation}
-                        </p>
-                    </div>
 
-                    {/* Right: Metadata */}
-                    <div className="text-left flex-shrink-0 text-xs text-foreground-muted">
-                        <div>{surah.numberOfAyahs} Ayat</div>
-                        <div>{surah.revelationType === 'Meccan' ? 'Makkiyah' : 'Madaniyah'}</div>
+                        {/* Center: Info */}
+                        <div className="text-center flex-1 min-w-0">
+                            <p className="text-xs text-primary font-semibold tracking-wide uppercase mb-1">
+                                Surah {surah.number}
+                            </p>
+                            <h1 className="text-xl md:text-2xl font-bold text-foreground">
+                                {surah.englishName}
+                            </h1>
+                            <p className="text-sm text-foreground-muted mt-0.5">
+                                {SURAH_MEANING_ID[surahNumber] || surah.englishNameTranslation}
+                            </p>
+                        </div>
+
+                        {/* Right: Metadata */}
+                        <div className="flex-shrink-0 text-right">
+                            <div className="text-sm font-medium text-foreground">{surah.numberOfAyahs} Ayat</div>
+                            <div className="text-xs text-foreground-muted mt-0.5">
+                                {surah.revelationType === 'Meccan' ? 'Makkiyah' : 'Madaniyah'}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Bismillah - compact */}
+                {/* Bismillah - with ornamental styling */}
                 {showBismillah && (
-                    <div className="text-center py-3 mt-2">
-                        <span className="font-arabic text-3xl md:text-4xl text-primary">
+                    <div className="text-center py-6 mt-4">
+                        <div className="ornament-divider max-w-xs mx-auto mb-4">
+                            <span className="text-ornament text-lg">✦</span>
+                        </div>
+                        <span className="font-arabic text-3xl md:text-4xl text-primary leading-relaxed">
                             {BISMILLAH}
                         </span>
+                        <div className="ornament-divider max-w-xs mx-auto mt-4">
+                            <span className="text-ornament text-lg">✦</span>
+                        </div>
                     </div>
                 )}
             </header>
