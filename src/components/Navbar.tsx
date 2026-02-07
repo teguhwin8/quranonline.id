@@ -24,10 +24,10 @@ export default function Navbar({ onAIClick, isAIOpen }: NavbarProps) {
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
                         {/* Logo */}
-                        <Link href="/" className="flex items-center gap-2 group">
+                        <Link href="/" className="flex items-center gap-2 group" aria-label="Quran Online - Halaman Utama">
                             <Image
                                 src="/logo-quranonline.id.png"
-                                alt="Quran Online"
+                                alt="Logo Quran Online - Al-Quran Digital Indonesia dengan Terjemahan"
                                 width={44}
                                 height={44}
                             />
@@ -35,7 +35,7 @@ export default function Navbar({ onAIClick, isAIOpen }: NavbarProps) {
                         </Link>
 
                         {/* Desktop Navigation */}
-                        <nav className="hidden md:flex items-center gap-6">
+                        <nav aria-label="Menu navigasi utama" className="hidden md:flex items-center gap-6">
                             <Link
                                 href="/"
                                 className={`transition-colors font-medium flex items-center gap-1 ${isActive('/') ? 'text-white' : 'text-white/80 hover:text-white'}`}
@@ -70,23 +70,25 @@ export default function Navbar({ onAIClick, isAIOpen }: NavbarProps) {
             </header>
 
             {/* Mobile Bottom Navigation - 5 equal items */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-header-bg text-header-text shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+            <nav aria-label="Menu navigasi mobile" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-header-bg text-header-text shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
                 <div className="flex items-end h-16">
                     {/* 1. Beranda */}
                     <Link
                         href="/"
+                        aria-label="Beranda"
                         className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/') ? 'text-gold' : 'text-white/60 active:text-white'}`}
                     >
-                        <i className={`ri-home-4-${isActive('/') ? 'fill' : 'line'} text-xl`}></i>
+                        <i className={`ri-home-4-${isActive('/') ? 'fill' : 'line'} text-xl`} aria-hidden="true"></i>
                         <span className="text-[10px] font-medium">Beranda</span>
                     </Link>
 
                     {/* 2. Bookmark */}
                     <Link
                         href="/bookmarks"
+                        aria-label="Bookmark ayat tersimpan"
                         className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/bookmarks') ? 'text-gold' : 'text-white/60 active:text-white'}`}
                     >
-                        <i className={`ri-bookmark-${isActive('/bookmarks') ? 'fill' : 'line'} text-xl`}></i>
+                        <i className={`ri-bookmark-${isActive('/bookmarks') ? 'fill' : 'line'} text-xl`} aria-hidden="true"></i>
                         <span className="text-[10px] font-medium">Bookmark</span>
                     </Link>
 
@@ -104,18 +106,20 @@ export default function Navbar({ onAIClick, isAIOpen }: NavbarProps) {
                     {/* 4. Cari */}
                     <Link
                         href="/search"
+                        aria-label="Cari ayat Al-Quran"
                         className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/search') ? 'text-gold' : 'text-white/60 active:text-white'}`}
                     >
-                        <i className={`ri-search-${isActive('/search') ? 'fill' : 'line'} text-xl`}></i>
+                        <i className={`ri-search-${isActive('/search') ? 'fill' : 'line'} text-xl`} aria-hidden="true"></i>
                         <span className="text-[10px] font-medium">Cari</span>
                     </Link>
 
                     {/* 5. Pengaturan */}
                     <Link
                         href="/settings"
+                        aria-label="Pengaturan aplikasi"
                         className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/settings') ? 'text-gold' : 'text-white/60 active:text-white'}`}
                     >
-                        <i className={`ri-settings-3-${isActive('/settings') ? 'fill' : 'line'} text-xl`}></i>
+                        <i className={`ri-settings-3-${isActive('/settings') ? 'fill' : 'line'} text-xl`} aria-hidden="true"></i>
                         <span className="text-[10px] font-medium">Pengaturan</span>
                     </Link>
                 </div>

@@ -6,6 +6,9 @@ import { ThemeProvider } from "@/hooks/useTheme";
 import { AudioProvider } from "@/hooks/useAudio";
 import Footer from "@/components/Footer";
 
+// Base URL from environment variable
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://quranonline.id";
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -38,7 +41,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://quranonline.id"),
+  metadataBase: new URL(BASE_URL),
   title: {
     default: "Quran Online - Al-Quran Digital dengan AI Tanya Jawab & Terjemahan Indonesia",
     template: "%s | Quran Online",
@@ -69,16 +72,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "id_ID",
-    url: "https://quranonline.id",
+    url: BASE_URL,
     siteName: "Quran Online",
     title: "Quran Online - Al-Quran Digital dengan AI Tanya Jawab",
     description: "Baca Al-Quran online 114 surah dengan AI Tanya Jawab, terjemahan Indonesia, audio murottal. Tanya apa saja tentang Al-Quran!",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Quran Online - Baca Al-Quran Digital",
+        alt: "Quran Online - Al-Quran Digital Indonesia dengan Terjemahan",
       },
     ],
   },
@@ -86,7 +89,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Quran Online - Al-Quran Digital dengan AI",
     description: "Baca Al-Quran online dengan AI Tanya Jawab dan terjemahan Indonesia. Gratis!",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,
@@ -104,7 +107,7 @@ export const metadata: Metadata = {
     // google: "your-google-verification-code",
   },
   alternates: {
-    canonical: "https://quranonline.id",
+    canonical: BASE_URL,
   },
 };
 
@@ -118,13 +121,13 @@ export default function RootLayout({
     "@type": "WebSite",
     name: "Quran Online",
     alternateName: "Quran Online Indonesia",
-    url: "https://quranonline.id",
+    url: BASE_URL,
     description: "Baca Al-Quran online lengkap dengan terjemahan Bahasa Indonesia dan audio murottal",
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://quranonline.id/search?q={search_term_string}",
+        urlTemplate: `${BASE_URL}/search?q={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
     },
@@ -205,10 +208,19 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${scheherazade.variable} ${amiri.variable} antialiased`}>
+        {/* Skip Link for Accessibility */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg"
+        >
+          Langsung ke konten utama
+        </a>
         <ThemeProvider>
           <AudioProvider>
             <ClientLayout>
-              {children}
+              <main id="main-content">
+                {children}
+              </main>
             </ClientLayout>
             <Footer />
           </AudioProvider>

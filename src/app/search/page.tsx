@@ -79,17 +79,22 @@ function SearchContent() {
             </h1>
 
             {/* Search Form */}
-            <form onSubmit={handleSubmit} className="mb-8">
+            <form onSubmit={handleSubmit} className="mb-8" role="search">
                 <div className="relative">
+                    <label htmlFor="search-input" className="sr-only">
+                        Cari ayat dalam Al-Quran
+                    </label>
                     <input
-                        type="text"
+                        id="search-input"
+                        type="search"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Ketik kata kunci (contoh: sabar, rezeki, syukur)"
                         className="search-input pl-12 pr-24"
                         autoFocus
+                        aria-describedby="search-hint"
                     />
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground-muted">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground-muted" aria-hidden="true">
                         <i className="ri-search-line text-xl"></i>
                     </div>
                     <button
@@ -99,6 +104,9 @@ function SearchContent() {
                         Cari
                     </button>
                 </div>
+                <p id="search-hint" className="sr-only">
+                    Pencarian dilakukan dalam terjemahan Bahasa Indonesia
+                </p>
             </form>
 
             {/* Loading */}

@@ -6,6 +6,9 @@ import { getSurahComplete, getSurahList } from '@/lib/api';
 import SurahClientWrapper from '@/components/SurahClientWrapper';
 import { SURAH_MEANING_ID } from '@/lib/surah-translations';
 
+// Base URL from environment variable
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://quranonline.id';
+
 // Bismillah text (shown for all surahs except At-Taubah)
 const BISMILLAH = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
 
@@ -52,15 +55,22 @@ export async function generateMetadata({
             title: `${title} | Quran Online`,
             description,
             type: "article",
-            url: `https://quranonline.id/surah/${surahNumber}`,
+            url: `${BASE_URL}/surah/${surahNumber}`,
+            images: [{
+                url: '/og-image.jpg',
+                width: 1200,
+                height: 630,
+                alt: `Surah ${surah.englishName} - Baca Al-Quran Online`,
+            }],
         },
         twitter: {
-            card: "summary",
+            card: "summary_large_image",
             title: `${title} | Quran Online`,
             description,
+            images: ['/og-image.jpg'],
         },
         alternates: {
-            canonical: `https://quranonline.id/surah/${surahNumber}`,
+            canonical: `${BASE_URL}/surah/${surahNumber}`,
         },
     };
 }
@@ -108,7 +118,7 @@ async function SurahContent({ surahNumber }: { surahNumber: number }) {
         },
         mainEntityOfPage: {
             "@type": "WebPage",
-            "@id": `https://quranonline.id/surah/${surahNumber}`,
+            "@id": `${BASE_URL}/surah/${surahNumber}`,
         },
     };
 

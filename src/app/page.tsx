@@ -2,6 +2,9 @@ import { getSurahList } from '@/lib/api';
 import SurahCard from '@/components/SurahCard';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
 
+// Base URL from environment variable
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://quranonline.id';
+
 // ISR dikonfigurasi di level fetch (lib/api.ts) dengan revalidate: 86400
 
 export default async function HomePage() {
@@ -20,7 +23,7 @@ export default async function HomePage() {
       item: {
         "@type": "Article",
         name: `Surah ${surah.englishName}`,
-        url: `https://quranonline.id/surah/${surah.number}`,
+        url: `${BASE_URL}/surah/${surah.number}`,
       },
     })),
   };
@@ -48,12 +51,14 @@ export default async function HomePage() {
       </section>
 
       {/* Search Bar */}
-      <section className="mb-10 fade-in">
+      <section aria-labelledby="search-section-heading" className="mb-10 fade-in">
+        <h2 id="search-section-heading" className="sr-only">Cari Surah Al-Quran</h2>
         <SearchAutocomplete surahs={surahs} />
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-3 gap-4 mb-10 max-w-xl mx-auto fade-in">
+      <section aria-labelledby="stats-section-heading" className="grid grid-cols-3 gap-4 mb-10 max-w-xl mx-auto fade-in">
+        <h2 id="stats-section-heading" className="sr-only">Statistik Al-Quran</h2>
         <div className="text-center">
           <div className="text-2xl md:text-3xl font-bold text-primary">114</div>
           <div className="text-sm text-foreground-muted">Surah</div>

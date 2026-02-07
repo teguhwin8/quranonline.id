@@ -115,12 +115,18 @@ export default function BookmarksPage() {
 
             {/* Confirm Clear Modal */}
             {showConfirmClear && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 fade-in">
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 fade-in"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title"
+                    aria-describedby="modal-description"
+                >
                     <div className="bg-card-bg rounded-xl p-6 max-w-sm w-full shadow-xl">
-                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                        <h3 id="modal-title" className="text-lg font-semibold text-foreground mb-2">
                             Hapus Semua Bookmark?
                         </h3>
-                        <p className="text-foreground-muted mb-6">
+                        <p id="modal-description" className="text-foreground-muted mb-6">
                             Tindakan ini tidak dapat dibatalkan. Semua bookmark Anda akan dihapus.
                         </p>
                         <div className="flex gap-3">
@@ -137,7 +143,7 @@ export default function BookmarksPage() {
                                 }}
                                 className="btn flex-1 bg-red-500 text-white hover:bg-red-600"
                             >
-                                <i className="ri-delete-bin-line"></i>
+                                <i className="ri-delete-bin-line" aria-hidden="true"></i>
                                 Hapus Semua
                             </button>
                         </div>
