@@ -571,8 +571,8 @@ html.dark .search-more-link:hover {
   .ai-fab {
     display: flex;
     position: fixed;
-    bottom: 8rem;
-    /* High enough to clear the audio player */
+    bottom: 2rem;
+    /* Default position - will be overridden by ai-fab-high/ai-fab-low */
     right: 1.5rem;
     width: 3rem;
     height: 3rem;
@@ -587,6 +587,16 @@ html.dark .search-more-link:hover {
     z-index: 35;
     /* Lower than player z-40 */
     border: none;
+  }
+
+  /* Position when audio player is active */
+  .ai-fab.ai-fab-high {
+    bottom: 8rem;
+  }
+
+  /* Position when no audio player */
+  .ai-fab.ai-fab-low {
+    bottom: 2rem;
   }
 
   .ai-fab:hover {

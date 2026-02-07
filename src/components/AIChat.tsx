@@ -2,6 +2,7 @@
 
 import { useChat } from '@ai-sdk/react';
 import { useRef, useEffect, FormEvent, ReactNode } from 'react';
+import { useAudio } from '@/hooks/useAudio';
 
 // Helper to get text content from message
 function getMessageText(message: { content?: string; parts?: Array<{ type: string; text?: string }> }): string {
@@ -56,6 +57,10 @@ interface AIChatProps {
 export default function AIChat({ isOpen, onClose, onToggle }: AIChatProps) {
     const [inputValue, setInputValue] = React.useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { audioState } = useAudio();
+
+    // Check if player is active
+    const hasActivePlayer = audioState.currentAyahIndex !== null && audioState.ayahs[audioState.currentAyahIndex]?.audio;
 
     // useChat defaults to /api/chat endpoint
     // Provide explicit id to avoid Math.random during SSR
@@ -90,7 +95,7 @@ export default function AIChat({ isOpen, onClose, onToggle }: AIChatProps) {
             {/* Floating Action Button - Desktop only */}
             <button
                 onClick={onToggle}
-                className="ai-fab hidden md:flex"
+                className={`ai-fab hidden md:flex ${hasActivePlayer ? 'ai-fab-high' : 'ai-fab-low'}`}
                 aria-label={isOpen ? 'Tutup AI Chat' : 'Buka AI Chat'}
             >
                 <i className={`${isOpen ? 'ri-close-line' : 'ri-sparkling-2-fill'} text-xl`}></i>
