@@ -60,19 +60,17 @@ export async function generateSurahPDF({ surah, ayahs, includeBismillah = true }
             line-height: 2.2;
             padding: 0.5cm;
             background: white;
-            color: #1a1a1a;
+            color: #717171ff;
         }
         
         .header {
             text-align: center;
             margin-bottom: 0.5cm;
             padding-bottom: 0.3cm;
-            border-bottom: 1px solid #1b5e20;
         }
         
         .header h1 {
             font-size: 16pt;
-            color: #1b5e20;
         }
         
         .header .arabic-name {
@@ -88,7 +86,6 @@ export async function generateSurahPDF({ surah, ayahs, includeBismillah = true }
         .bismillah {
             text-align: center;
             font-size: 48pt;
-            color: #1b5e20;
             margin-bottom: 0.5cm;
         }
         
@@ -104,7 +101,6 @@ export async function generateSurahPDF({ surah, ayahs, includeBismillah = true }
         }
         
         .marker {
-            color: #1b5e20;
             font-size: 44pt;
             margin: 0 0.1em;
         }
@@ -115,7 +111,6 @@ export async function generateSurahPDF({ surah, ayahs, includeBismillah = true }
             border-top: 1px solid #ccc;
             text-align: center;
             font-size: 10pt;
-            color: #888;
             direction: ltr;
         }
         
@@ -130,18 +125,12 @@ export async function generateSurahPDF({ surah, ayahs, includeBismillah = true }
 <body>
     <div class="header">
         <div class="arabic-name">${surah.name}</div>
-        <h1>${surah.englishName}</h1>
-        <div class="info">${surah.englishNameTranslation} • ${surah.numberOfAyahs} Ayat • ${surah.revelationType === 'Meccan' ? 'Makkiyah' : 'Madaniyah'}</div>
     </div>
     
     ${bismillah}
     
     <div class="content">
         ${ayahsHtml}
-    </div>
-    
-    <div class="footer">
-        Generated from quranonline.id
     </div>
 </body>
 </html>
