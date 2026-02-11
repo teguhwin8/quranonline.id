@@ -49,18 +49,38 @@ export const metadata: Metadata = {
   },
   description: "Baca Al-Quran online 114 surah dengan AI Tanya Jawab, terjemahan Bahasa Indonesia, audio murottal, dan fitur bookmark. Tanya apa saja tentang Al-Quran! 100% gratis.",
   keywords: [
+    // Primary keywords
     "quran online",
     "al-quran",
     "baca quran",
+    "baca quran online",
+    // Long-tail translation keywords (lower competition)
     "quran terjemahan indonesia",
+    "quran terjemahan bahasa indonesia",
+    "al quran dan terjemahan",
+    "baca al quran dan artinya",
+    // AI feature keywords (unique, very low competition)
     "tanya jawab quran ai",
-    "chatbot quran",
+    "chatbot quran indonesia",
+    "ai quran bahasa indonesia",
+    "tanya jawab al quran",
+    "quran online dengan ai",
+    // Audio keywords
     "murottal quran",
+    "murottal quran online",
+    "audio quran lengkap",
+    // Contextual keywords
     "al quran digital",
-    "quran lengkap",
-    "surah al-fatihah",
+    "quran lengkap 114 surah",
+    "ngaji online gratis",
+    "baca quran gratis",
+    // Popular surah searches (high volume)
     "surah yasin",
-    "ngaji online",
+    "surah al-fatihah",
+    "surah ar-rahman",
+    "surah al-mulk",
+    "surah al-kahfi",
+    "surah al-waqiah",
   ],
   authors: [{ name: "Teguh Widodo", url: "https://www.linkedin.com/in/teguhwin8/" }],
   creator: "Teguh Widodo",

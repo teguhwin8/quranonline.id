@@ -37,20 +37,35 @@ export async function generateMetadata({
     const { surah } = data;
 
     const surahNameId = SURAH_MEANING_ID[surahNumber] || surah.englishNameTranslation;
-    const title = `Surah ${surah.englishName} - ${surahNameId}`;
-    const description = `Baca Surah ${surah.englishName} (${surah.name}) lengkap ${surah.numberOfAyahs} ayat dengan terjemahan Bahasa Indonesia dan audio murottal. ${surah.revelationType === 'Meccan' ? 'Surah Makkiyah' : 'Surah Madaniyah'}.`;
+    const surahNameLower = surah.englishName.toLowerCase();
+    const title = `Surah ${surah.englishName} (${surahNameId}) - Terjemahan & Audio`;
+    const description = `Baca Surah ${surah.englishName} (${surah.name}) lengkap ${surah.numberOfAyahs} ayat dengan terjemahan Bahasa Indonesia, audio murottal, dan AI Tanya Jawab. ${surah.revelationType === 'Meccan' ? 'Surah Makkiyah' : 'Surah Madaniyah'}. Gratis!`;
 
     return {
         title,
         description,
         keywords: [
-            `surah ${surah.englishName.toLowerCase()}`,
-            surah.englishName.toLowerCase(),
-            `surat ${surah.englishName.toLowerCase()}`,
-            `${surah.englishName} terjemahan`,
-            `${surah.englishName} audio`,
-            `${surah.englishName} arab latin`,
-        ],
+            // Primary keywords
+            `surah ${surahNameLower}`,
+            `surat ${surahNameLower}`,
+            `surah ${surahNameLower} lengkap`,
+            // Translation keywords (long-tail, lower competition)
+            `surah ${surahNameLower} terjemahan indonesia`,
+            `surat ${surahNameLower} dan artinya`,
+            `surah ${surahNameLower} terjemahan`,
+            // Audio keywords (searched frequently)
+            `surah ${surahNameLower} audio`,
+            `murottal surah ${surahNameLower}`,
+            // Arabic + Latin (common search pattern)
+            `surah ${surahNameLower} arab`,
+            `surah ${surahNameLower} arab latin`,
+            // Indonesian name variant
+            surahNameId ? `surah ${surahNameId.toLowerCase()}` : '',
+            // AI feature (unique, low competition)
+            `tanya jawab surah ${surahNameLower}`,
+            // Contextual
+            `baca surah ${surahNameLower} online`,
+        ].filter(Boolean),
         openGraph: {
             title: `${title} | Quran Online`,
             description,
