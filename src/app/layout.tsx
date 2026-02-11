@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, Scheherazade_New, Amiri } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
@@ -206,6 +207,14 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Rybbit Analytics - Production Only */}
+        {process.env.NODE_ENV === "production" && (
+          <Script
+            src="https://rybbit.teguhcoding.com/api/script.js"
+            data-site-id="0eded1c3fe38"
+            strategy="afterInteractive"
+          />
+        )}
       </head>
       <body className={`${inter.variable} ${scheherazade.variable} ${amiri.variable} antialiased`}>
         {/* Skip Link for Accessibility */}
