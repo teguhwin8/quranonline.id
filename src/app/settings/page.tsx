@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
+import { useReciter } from '@/hooks/useReciter';
 import Link from 'next/link';
 
 type ThemeOption = 'light' | 'dark' | 'system';
@@ -11,6 +12,7 @@ const VIEW_MODE_KEY = 'surah-view-mode';
 
 export default function SettingsPage() {
     const { theme, setTheme, resolvedTheme } = useTheme();
+    const { selectedReciter, setReciter, reciters, getReciterName } = useReciter();
     const [viewMode, setViewMode] = useState<ViewMode>('per-ayat');
     const [mounted, setMounted] = useState(false);
 
@@ -60,8 +62,8 @@ export default function SettingsPage() {
                                 key={opt.value}
                                 onClick={() => setTheme(opt.value)}
                                 className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${theme === opt.value
-                                        ? 'bg-primary text-white'
-                                        : 'text-foreground-muted hover:text-foreground'
+                                    ? 'bg-primary text-white'
+                                    : 'text-foreground-muted hover:text-foreground'
                                     }`}
                                 title={opt.label}
                             >
@@ -71,6 +73,38 @@ export default function SettingsPage() {
                         ))}
                     </div>
                 </div>
+
+                <hr className="border-card-border" />
+
+                {/* Reciter / Qari Setting */}
+                {mounted && (
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            <i className="ri-mic-line text-primary"></i>
+                            <span className="text-sm font-medium">Qari / Pembaca</span>
+                        </div>
+                        <select
+                            value={selectedReciter}
+                            onChange={(e) => setReciter(e.target.value)}
+                            className="w-full px-3 py-2 text-sm rounded-lg bg-background-alt border border-card-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all cursor-pointer appearance-none"
+                            style={{
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'right 12px center',
+                                paddingRight: '36px',
+                            }}
+                        >
+                            {reciters.map((reciter) => (
+                                <option key={reciter.identifier} value={reciter.identifier}>
+                                    {reciter.englishName} — {reciter.name}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="text-xs text-foreground-muted pl-5">
+                            Saat ini: <span className="font-medium text-foreground">{getReciterName(selectedReciter)}</span>
+                        </p>
+                    </div>
+                )}
 
                 <hr className="border-card-border" />
 
@@ -85,8 +119,8 @@ export default function SettingsPage() {
                             <button
                                 onClick={() => handleViewModeChange('per-ayat')}
                                 className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${viewMode === 'per-ayat'
-                                        ? 'bg-primary text-white'
-                                        : 'text-foreground-muted hover:text-foreground'
+                                    ? 'bg-primary text-white'
+                                    : 'text-foreground-muted hover:text-foreground'
                                     }`}
                             >
                                 <i className="ri-list-check-2"></i>
@@ -95,8 +129,8 @@ export default function SettingsPage() {
                             <button
                                 onClick={() => handleViewModeChange('per-surat')}
                                 className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${viewMode === 'per-surat'
-                                        ? 'bg-primary text-white'
-                                        : 'text-foreground-muted hover:text-foreground'
+                                    ? 'bg-primary text-white'
+                                    : 'text-foreground-muted hover:text-foreground'
                                     }`}
                             >
                                 <i className="ri-file-text-line"></i>

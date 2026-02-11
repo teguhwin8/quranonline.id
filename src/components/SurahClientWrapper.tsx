@@ -6,7 +6,9 @@ import AyahCard from '@/components/AyahCard';
 import { ViewMode } from '@/components/SurahViewToggle';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useAudio } from '@/hooks/useAudio';
+import { useReciter, DEFAULT_RECITER } from '@/hooks/useReciter';
 import { generateSurahPDF } from '@/lib/generateSurahPDF';
+import { getSurahAudio } from '@/lib/api';
 import { AyahWithTranslation, SurahDetail } from '@/types/quran';
 
 // Convert Western numerals to Eastern Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩)
@@ -23,13 +25,41 @@ interface SurahClientWrapperProps {
     ayahs: AyahWithTranslation[];
 }
 
-export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperProps) {
+export default function SurahClientWrapper({ surah, ayahs: initialAyahs }: SurahClientWrapperProps) {
     const { audioState, playWithGesture, pauseAudio, resumeAudio } = useAudio();
+    const { selectedReciter, getBismillahUrl } = useReciter();
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const ayahRefs = useRef<(HTMLDivElement | null)[]>([]);
     const pathname = usePathname();
     const [initialized, setInitialized] = useState(false);
     const [viewMode, setViewMode] = useState<ViewMode>('per-ayat');
+    const [ayahs, setAyahs] = useState<AyahWithTranslation[]>(initialAyahs);
+
+    // Re-fetch audio when reciter changes (server renders with default reciter)
+    useEffect(() => {
+        if (selectedReciter === DEFAULT_RECITER) {
+            // Reset to server-rendered data when default is selected
+            setAyahs(initialAyahs);
+            return;
+        }
+
+        let cancelled = false;
+        async function refetchAudio() {
+            try {
+                const audioData = await getSurahAudio(surah.number, selectedReciter);
+                if (cancelled) return;
+                setAyahs(prev => prev.map((ayah, index) => ({
+                    ...ayah,
+                    audio: audioData.ayahs[index]?.audio || ayah.audio,
+                })));
+            } catch (error) {
+                console.error('Failed to fetch audio for reciter:', error);
+            }
+        }
+        refetchAudio();
+        return () => { cancelled = true; };
+    }, [selectedReciter, surah.number, initialAyahs]);
+
 
     // Load view mode from localStorage on mount
     useEffect(() => {
@@ -158,21 +188,21 @@ export default function SurahClientWrapper({ surah, ayahs }: SurahClientWrapperP
         // For surahs that have bismillah (all except Al-Fatihah and At-Taubah)
         // Prepend bismillah as virtual ayah at index 0
         if (surahNumber !== 1 && surahNumber !== 9) {
-            const BISMILLAH_AUDIO_URL = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3';
+            const bismillahUrl = getBismillahUrl();
             const bismillahAyah = {
                 number: 0,
                 numberInSurah: 0,
                 arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
                 translation: 'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
-                audio: BISMILLAH_AUDIO_URL,
+                audio: bismillahUrl,
             };
             const ayahsWithBismillah = [bismillahAyah, ...ayahs];
-            playWithGesture(BISMILLAH_AUDIO_URL, surah, ayahsWithBismillah, 0);
+            playWithGesture(bismillahUrl, surah, ayahsWithBismillah, 0);
         } else {
             // Al-Fatihah (1) or At-Taubah (9) - play directly
             playWithGesture(firstAyah.audio, surah, ayahs, 0);
         }
-    }, [playWithGesture, surah, ayahs, surahNumber]);
+    }, [playWithGesture, surah, ayahs, surahNumber, getBismillahUrl]);
 
     // Memoize isAyahPlaying check
     const isCurrentSurah = audioState.surah?.number === surahNumber;

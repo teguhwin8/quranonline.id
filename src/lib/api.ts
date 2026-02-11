@@ -12,8 +12,8 @@ const BASE_URL = 'https://api.alquran.cloud/v1';
 const ARABIC_EDITION = 'quran-uthmani';
 // Indonesian translation
 const TRANSLATION_EDITION = 'id.indonesian';
-// Audio edition (Mishary Alafasy)
-const AUDIO_EDITION = 'ar.alafasy';
+// Default audio edition (Mishary Alafasy)
+const DEFAULT_AUDIO_EDITION = 'ar.alafasy';
 
 /**
  * Fetch all 114 Surahs
@@ -66,8 +66,8 @@ export async function getSurahTranslation(number: number): Promise<SurahDetail> 
 /**
  * Fetch a single Surah with audio
  */
-export async function getSurahAudio(number: number): Promise<SurahDetail> {
-    const res = await fetch(`${BASE_URL}/surah/${number}/${AUDIO_EDITION}`, {
+export async function getSurahAudio(number: number, reciterIdentifier: string = DEFAULT_AUDIO_EDITION): Promise<SurahDetail> {
+    const res = await fetch(`${BASE_URL}/surah/${number}/${reciterIdentifier}`, {
         next: { revalidate: 86400 },
     });
 
@@ -82,14 +82,14 @@ export async function getSurahAudio(number: number): Promise<SurahDetail> {
 /**
  * Fetch Surah with Arabic, Translation, and Audio combined
  */
-export async function getSurahComplete(number: number): Promise<{
+export async function getSurahComplete(number: number, reciterIdentifier: string = DEFAULT_AUDIO_EDITION): Promise<{
     surah: SurahDetail;
     ayahs: AyahWithTranslation[];
 }> {
     const [arabic, translation, audio] = await Promise.all([
         getSurah(number),
         getSurahTranslation(number),
-        getSurahAudio(number),
+        getSurahAudio(number, reciterIdentifier),
     ]);
 
     const ayahs: AyahWithTranslation[] = arabic.ayahs.map((ayah, index) => {
@@ -151,10 +151,11 @@ export async function getAyah(
     const reference = `${surahNumber}:${ayahNumber}`;
 
     try {
+        const audioEdition = DEFAULT_AUDIO_EDITION;
         const [arabicRes, translationRes, audioRes] = await Promise.all([
             fetch(`${BASE_URL}/ayah/${reference}/${ARABIC_EDITION}`),
             fetch(`${BASE_URL}/ayah/${reference}/${TRANSLATION_EDITION}`),
-            fetch(`${BASE_URL}/ayah/${reference}/${AUDIO_EDITION}`),
+            fetch(`${BASE_URL}/ayah/${reference}/${audioEdition}`),
         ]);
 
         if (!arabicRes.ok || !translationRes.ok) {

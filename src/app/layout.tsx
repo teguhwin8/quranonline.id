@@ -5,6 +5,7 @@ import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AudioProvider } from "@/hooks/useAudio";
+import { ReciterProvider } from "@/hooks/useReciter";
 import Footer from "@/components/Footer";
 
 // Base URL from environment variable
@@ -246,11 +247,13 @@ export default function RootLayout({
         </a>
         <ThemeProvider>
           <AudioProvider>
-            <ClientLayout>
-              <main id="main-content">
-                {children}
-              </main>
-            </ClientLayout>
+            <ReciterProvider>
+              <ClientLayout>
+                <main id="main-content">
+                  {children}
+                </main>
+              </ClientLayout>
+            </ReciterProvider>
             <Footer />
           </AudioProvider>
         </ThemeProvider>

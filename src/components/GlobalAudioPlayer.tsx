@@ -3,14 +3,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAudio } from '@/hooks/useAudio';
+import { useReciter } from '@/hooks/useReciter';
 import { getSurahComplete } from '@/lib/api';
-
-// Bismillah audio URL (from Al-Fatihah verse 1)
-const BISMILLAH_AUDIO_URL = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3';
 
 export default function GlobalAudioPlayer() {
     const router = useRouter();
     const { audioState, audioRef, closePlayer, pauseAudio, resumeAudio, playWithGesture, toggleAutoPlay } = useAudio();
+    const { selectedReciter, getBismillahUrl } = useReciter();
     const [playError, setPlayError] = useState<string | null>(null);
     const progressRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | null>(null);
@@ -35,7 +34,7 @@ export default function GlobalAudioPlayer() {
             setIsLoadingNextSurah(true);
             try {
                 const nextSurahNumber = surah.number + 1;
-                const { surah: nextSurah, ayahs: nextAyahs } = await getSurahComplete(nextSurahNumber);
+                const { surah: nextSurah, ayahs: nextAyahs } = await getSurahComplete(nextSurahNumber, selectedReciter);
 
                 // At-Taubah (surah 9) doesn't have bismillah, so play first ayah directly
                 if (nextSurahNumber === 9) {
@@ -45,17 +44,18 @@ export default function GlobalAudioPlayer() {
                     }
                 } else {
                     // Prepend bismillah as virtual ayah at index 0
+                    const bismillahUrl = getBismillahUrl();
                     const bismillahAyah = {
                         number: 0,
                         numberInSurah: 0,
                         arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
                         translation: 'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
-                        audio: BISMILLAH_AUDIO_URL,
+                        audio: bismillahUrl,
                     };
                     const ayahsWithBismillah = [bismillahAyah, ...nextAyahs];
 
                     // Play bismillah first (index 0), then ayahs will continue from index 1
-                    playWithGesture(BISMILLAH_AUDIO_URL, nextSurah, ayahsWithBismillah, 0);
+                    playWithGesture(bismillahUrl, nextSurah, ayahsWithBismillah, 0);
                     router.push(`/surah/${nextSurahNumber}`);
                 }
             } catch (error) {
@@ -68,7 +68,7 @@ export default function GlobalAudioPlayer() {
         } else {
             closePlayer();
         }
-    }, [currentAyahIndex, ayahs, surah, autoPlayNextSurah, playWithGesture, closePlayer, router]);
+    }, [currentAyahIndex, ayahs, surah, autoPlayNextSurah, playWithGesture, closePlayer, router, selectedReciter, getBismillahUrl]);
 
     // Play previous ayah - uses playWithGesture for iOS compatibility
     const playPrevious = useCallback(() => {
