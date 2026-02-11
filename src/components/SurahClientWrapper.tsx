@@ -27,7 +27,7 @@ interface SurahClientWrapperProps {
 
 export default function SurahClientWrapper({ surah, ayahs: initialAyahs }: SurahClientWrapperProps) {
     const { audioState, playWithGesture, pauseAudio, resumeAudio } = useAudio();
-    const { selectedReciter, getBismillahUrl } = useReciter();
+    const { selectedReciter, bismillahAudio } = useReciter();
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const ayahRefs = useRef<(HTMLDivElement | null)[]>([]);
     const pathname = usePathname();
@@ -51,6 +51,7 @@ export default function SurahClientWrapper({ surah, ayahs: initialAyahs }: Surah
                 setAyahs(prev => prev.map((ayah, index) => ({
                     ...ayah,
                     audio: audioData.ayahs[index]?.audio || ayah.audio,
+                    audioSecondary: audioData.ayahs[index]?.audioSecondary,
                 })));
             } catch (error) {
                 console.error('Failed to fetch audio for reciter:', error);
@@ -188,21 +189,28 @@ export default function SurahClientWrapper({ surah, ayahs: initialAyahs }: Surah
         // For surahs that have bismillah (all except Al-Fatihah and At-Taubah)
         // Prepend bismillah as virtual ayah at index 0
         if (surahNumber !== 1 && surahNumber !== 9) {
-            const bismillahUrl = getBismillahUrl();
-            const bismillahAyah = {
-                number: 0,
-                numberInSurah: 0,
-                arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                translation: 'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
-                audio: bismillahUrl,
-            };
-            const ayahsWithBismillah = [bismillahAyah, ...ayahs];
-            playWithGesture(bismillahUrl, surah, ayahsWithBismillah, 0);
+            // Use API-fetched bismillah audio URL
+            const bUrl = bismillahAudio?.audio;
+            if (bUrl) {
+                const bismillahAyah = {
+                    number: 0,
+                    numberInSurah: 0,
+                    arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                    translation: 'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
+                    audio: bUrl,
+                    audioSecondary: bismillahAudio?.audioSecondary,
+                };
+                const ayahsWithBismillah = [bismillahAyah, ...ayahs];
+                playWithGesture(bUrl, surah, ayahsWithBismillah, 0);
+            } else {
+                // Bismillah not loaded yet, play first ayah directly
+                playWithGesture(firstAyah.audio, surah, ayahs, 0);
+            }
         } else {
             // Al-Fatihah (1) or At-Taubah (9) - play directly
             playWithGesture(firstAyah.audio, surah, ayahs, 0);
         }
-    }, [playWithGesture, surah, ayahs, surahNumber, getBismillahUrl]);
+    }, [playWithGesture, surah, ayahs, surahNumber, bismillahAudio]);
 
     // Memoize isAyahPlaying check
     const isCurrentSurah = audioState.surah?.number === surahNumber;

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { Reciter } from '@/types/quran';
+import { getBismillahAudio } from '@/lib/api';
 
 const RECITER_STORAGE_KEY = 'quran-reciter';
 const DEFAULT_RECITER = 'ar.alafasy';
@@ -27,12 +28,17 @@ export const AVAILABLE_RECITERS: Reciter[] = [
     { identifier: 'ar.aymanswoaid', name: 'أيمن سويد', englishName: 'Ayman Sowaid' },
 ];
 
+interface BismillahAudio {
+    audio: string;
+    audioSecondary?: string[];
+}
+
 interface ReciterContextType {
     selectedReciter: string;
     setReciter: (identifier: string) => void;
     reciters: Reciter[];
     getReciterName: (identifier: string) => string;
-    getBismillahUrl: () => string;
+    bismillahAudio: BismillahAudio | null;
 }
 
 const ReciterContext = createContext<ReciterContextType | undefined>(undefined);
@@ -40,6 +46,8 @@ const ReciterContext = createContext<ReciterContextType | undefined>(undefined);
 export function ReciterProvider({ children }: { children: ReactNode }) {
     const [selectedReciter, setSelectedReciter] = useState<string>(DEFAULT_RECITER);
     const [mounted, setMounted] = useState(false);
+    const [bismillahAudio, setBismillahAudio] = useState<BismillahAudio | null>(null);
+    const bismillahCacheRef = useRef<Record<string, BismillahAudio>>({});
 
     // Load from localStorage on mount
     useEffect(() => {
@@ -49,6 +57,31 @@ export function ReciterProvider({ children }: { children: ReactNode }) {
             setSelectedReciter(saved);
         }
     }, []);
+
+    // Fetch bismillah audio URL from API when reciter changes
+    useEffect(() => {
+        if (!mounted) return;
+
+        // Check cache first
+        if (bismillahCacheRef.current[selectedReciter]) {
+            setBismillahAudio(bismillahCacheRef.current[selectedReciter]);
+            return;
+        }
+
+        let cancelled = false;
+        async function fetchBismillah() {
+            try {
+                const result = await getBismillahAudio(selectedReciter);
+                if (cancelled) return;
+                bismillahCacheRef.current[selectedReciter] = result;
+                setBismillahAudio(result);
+            } catch (error) {
+                console.error('Failed to fetch bismillah audio:', error);
+            }
+        }
+        fetchBismillah();
+        return () => { cancelled = true; };
+    }, [selectedReciter, mounted]);
 
     const setReciter = useCallback((identifier: string) => {
         if (AVAILABLE_RECITERS.some(r => r.identifier === identifier)) {
@@ -62,10 +95,6 @@ export function ReciterProvider({ children }: { children: ReactNode }) {
         return reciter?.englishName || identifier;
     }, []);
 
-    const getBismillahUrl = useCallback(() => {
-        return `https://cdn.islamic.network/quran/audio/128/${selectedReciter}/1.mp3`;
-    }, [selectedReciter]);
-
     // Prevent hydration mismatch
     if (!mounted) {
         return (
@@ -74,7 +103,7 @@ export function ReciterProvider({ children }: { children: ReactNode }) {
                 setReciter: () => { },
                 reciters: AVAILABLE_RECITERS,
                 getReciterName,
-                getBismillahUrl: () => `https://cdn.islamic.network/quran/audio/128/${DEFAULT_RECITER}/1.mp3`,
+                bismillahAudio: null,
             }}>
                 {children}
             </ReciterContext.Provider>
@@ -87,7 +116,7 @@ export function ReciterProvider({ children }: { children: ReactNode }) {
             setReciter,
             reciters: AVAILABLE_RECITERS,
             getReciterName,
-            getBismillahUrl,
+            bismillahAudio,
         }}>
             {children}
         </ReciterContext.Provider>
@@ -107,7 +136,7 @@ export function useReciter(): ReciterContextType {
                 const reciter = AVAILABLE_RECITERS.find(r => r.identifier === identifier);
                 return reciter?.englishName || identifier;
             },
-            getBismillahUrl: () => `https://cdn.islamic.network/quran/audio/128/${DEFAULT_RECITER}/1.mp3`,
+            bismillahAudio: null,
         };
     }
 

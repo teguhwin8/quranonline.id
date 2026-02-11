@@ -114,6 +114,7 @@ export async function getSurahComplete(number: number, reciterIdentifier: string
             arabic: arabicText,
             translation: translation.ayahs[index]?.text || '',
             audio: audio.ayahs[index]?.audio,
+            audioSecondary: audio.ayahs[index]?.audioSecondary,
         };
     });
 
@@ -121,6 +122,32 @@ export async function getSurahComplete(number: number, reciterIdentifier: string
         surah: arabic,
         ayahs,
     };
+}
+
+/**
+ * Fetch bismillah audio URL for a specific reciter
+ * Bismillah = ayah 1 of Al-Fatihah (global ayah number 1)
+ */
+export async function getBismillahAudio(reciterIdentifier: string = DEFAULT_AUDIO_EDITION): Promise<{
+    audio: string;
+    audioSecondary?: string[];
+}> {
+    try {
+        const res = await fetch(`${BASE_URL}/ayah/1/${reciterIdentifier}`);
+        if (!res.ok) {
+            throw new Error('Failed to fetch bismillah audio');
+        }
+        const data = await res.json();
+        return {
+            audio: data.data.audio,
+            audioSecondary: data.data.audioSecondary,
+        };
+    } catch {
+        // Fallback: construct URL manually as last resort
+        return {
+            audio: `https://cdn.islamic.network/quran/audio/128/${reciterIdentifier}/1.mp3`,
+        };
+    }
 }
 
 /**

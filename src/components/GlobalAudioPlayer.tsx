@@ -9,7 +9,7 @@ import { getSurahComplete } from '@/lib/api';
 export default function GlobalAudioPlayer() {
     const router = useRouter();
     const { audioState, audioRef, closePlayer, pauseAudio, resumeAudio, playWithGesture, toggleAutoPlay } = useAudio();
-    const { selectedReciter, getBismillahUrl } = useReciter();
+    const { selectedReciter, bismillahAudio } = useReciter();
     const [playError, setPlayError] = useState<string | null>(null);
     const progressRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | null>(null);
@@ -44,19 +44,29 @@ export default function GlobalAudioPlayer() {
                     }
                 } else {
                     // Prepend bismillah as virtual ayah at index 0
-                    const bismillahUrl = getBismillahUrl();
-                    const bismillahAyah = {
-                        number: 0,
-                        numberInSurah: 0,
-                        arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                        translation: 'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
-                        audio: bismillahUrl,
-                    };
-                    const ayahsWithBismillah = [bismillahAyah, ...nextAyahs];
+                    // Use API-fetched bismillah audio URL
+                    const bUrl = bismillahAudio?.audio || '';
+                    if (!bUrl) {
+                        // Bismillah audio not loaded yet, play first ayah directly
+                        if (nextAyahs[0]?.audio) {
+                            playWithGesture(nextAyahs[0].audio, nextSurah, nextAyahs, 0);
+                            router.push(`/surah/${nextSurahNumber}`);
+                        }
+                    } else {
+                        const bismillahAyah = {
+                            number: 0,
+                            numberInSurah: 0,
+                            arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                            translation: 'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
+                            audio: bUrl,
+                            audioSecondary: bismillahAudio?.audioSecondary,
+                        };
+                        const ayahsWithBismillah = [bismillahAyah, ...nextAyahs];
 
-                    // Play bismillah first (index 0), then ayahs will continue from index 1
-                    playWithGesture(bismillahUrl, nextSurah, ayahsWithBismillah, 0);
-                    router.push(`/surah/${nextSurahNumber}`);
+                        // Play bismillah first (index 0), then ayahs will continue from index 1
+                        playWithGesture(bUrl, nextSurah, ayahsWithBismillah, 0);
+                        router.push(`/surah/${nextSurahNumber}`);
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load next surah:', error);
@@ -68,7 +78,7 @@ export default function GlobalAudioPlayer() {
         } else {
             closePlayer();
         }
-    }, [currentAyahIndex, ayahs, surah, autoPlayNextSurah, playWithGesture, closePlayer, router, selectedReciter, getBismillahUrl]);
+    }, [currentAyahIndex, ayahs, surah, autoPlayNextSurah, playWithGesture, closePlayer, router, selectedReciter, bismillahAudio]);
 
     // Play previous ayah - uses playWithGesture for iOS compatibility
     const playPrevious = useCallback(() => {
@@ -201,6 +211,18 @@ export default function GlobalAudioPlayer() {
         };
 
         const handleError = () => {
+            // Try audioSecondary as fallback
+            if (currentAyah?.audioSecondary && currentAyah.audioSecondary.length > 0) {
+                const fallbackUrl = currentAyah.audioSecondary[0];
+                console.warn('Primary audio failed, trying audioSecondary:', fallbackUrl);
+                audio.src = fallbackUrl;
+                audio.load();
+                // Remove audioSecondary so we don't loop on error
+                if (currentAyah) {
+                    currentAyah.audioSecondary = undefined;
+                }
+                return;
+            }
             setPlayError('Gagal memuat audio');
             setIsLoaded(false);
         };

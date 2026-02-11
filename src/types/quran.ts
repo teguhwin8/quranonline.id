@@ -89,4 +89,5 @@ export interface AyahWithTranslation {
   arabic: string;
   translation: string;
   audio?: string;
+  audioSecondary?: string[];
 }
