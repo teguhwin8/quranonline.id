@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+![Home](home.png)
 
-## Getting Started
+# Quran Online Indonesia
 
-First, run the development server:
+Aplikasi web **Al-Quran digital** dengan terjemahan Bahasa Indonesia, audio murottal, dan **AI Tanya Jawab** untuk membantu memahami ayat-ayat Al-Quran. Dibangun dengan Next.js 16 dan React 19.
+
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=flat-square&logo=tailwind-css)
+
+**Demo:** [quranonline.teguhcoding.com](https://quranonline.teguhcoding.com)
+
+## Fitur
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **114 Surah** | Daftar lengkap surah dengan teks Arab (Uthmani) dan terjemahan Indonesia |
+| **AI Tanya Jawab** | Chatbot berbasis AI untuk bertanya seputar Al-Quran (per surah atau umum) |
+| **Audio Murottal** | Pemutaran audio per ayat dengan pilihan beberapa qari |
+| **Pencarian** | Cari surah atau teks dalam terjemahan |
+| **Bookmark** | Simpan ayat favorit (disimpan di browser) |
+| **Export PDF** | Unduh surah atau ayat pilihan sebagai PDF |
+| **Tema** | Mode terang, gelap, atau mengikuti sistem |
+| **Tampilan** | Mode per-ayat atau per-surat (satu halaman) |
+| **SEO & PWA** | Metadata, sitemap, JSON-LD, manifest; siap dipublikasi |
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **UI:** React 19, Tailwind CSS 4
+- **Bahasa:** TypeScript
+- **Data:** [Al-Quran Cloud API](https://alquran.cloud/api)
+- **AI:** Vercel AI SDK (OpenAI / Google)
+- **PDF:** jsPDF, html2canvas
+
+## Persyaratan
+
+- Node.js 18+
+- npm / pnpm / yarn
+
+## Instalasi & Menjalankan
 
 ```bash
+# Clone (jika dari repo)
+git clone <url-repo>
+cd quran
+
+# Install dependensi
+npm install
+
+# Variabel lingkungan (opsional, untuk AI chat)
+# Buat file .env.local dan isi:
+# OPENAI_API_KEY=sk-...   atau
+# GOOGLE_GENERATIVE_AI_API_KEY=...
+
+# Development
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Build production
+npm run build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Jalankan production
+npm start
+```
 
-## Learn More
+## Struktur Proyek (Ringkas)
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/                    # App Router
+│   ├── page.tsx            # Home (daftar surah)
+│   ├── surah/[number]/     # Halaman surah
+│   ├── search/             # Pencarian
+│   ├── bookmarks/          # Bookmark
+│   ├── settings/           # Pengaturan
+│   └── api/                # API routes (chat, search, surah)
+├── components/             # Komponen React
+├── hooks/                  # useTheme, useAudio, useReciter, useBookmarks
+├── lib/                    # api, ai, generateSurahPDF, surah-translations
+└── types/                  # TypeScript types
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Variabel Lingkungan
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variabel | Wajib | Keterangan |
+|----------|--------|------------|
+| `NEXT_PUBLIC_APP_URL` | Tidak | URL publik (default: https://quranonline.id), untuk SEO & canonical |
+| `OPENAI_API_KEY` | Untuk AI | API key OpenAI (jika pakai model OpenAI) |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Untuk AI | API key Google AI (jika pakai model Gemini) |
 
-## Deploy on Vercel
+Tanpa API key AI, fitur **AI Tanya Jawab** tidak akan berfungsi; fitur lain tetap jalan.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Lisensi & Kredit
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Data ayat & terjemahan: [Al-Quran Cloud API](https://alquran.cloud/api)
+- Font Arab: Scheherazade New, Amiri (Google Fonts)
+- Dibuat oleh [Teguh Widodo](https://www.linkedin.com/in/teguhwin8/)
+
+---
+
+**Quran Online Indonesia** — Baca Al-Quran online dengan terjemahan Indonesia dan AI Tanya Jawab. 100% gratis.
