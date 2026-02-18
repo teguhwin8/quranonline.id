@@ -91,3 +91,36 @@ export interface AyahWithTranslation {
   audio?: string;
   audioSecondary?: string[];
 }
+
+// Juz Ayah (from juz API - includes surah info per ayah)
+export interface JuzAyah {
+  number: number;
+  text: string;
+  surah: Surah;
+  numberInSurah: number;
+  juz: number;
+  manzil: number;
+  page: number;
+  ruku: number;
+  hizbQuarter: number;
+  sajda: boolean | { id: number; recommended: boolean; obligatory: boolean };
+  audio?: string;
+  audioSecondary?: string[];
+}
+
+// Juz detail response
+export interface JuzDetail {
+  number: number;
+  ayahs: JuzAyah[];
+}
+
+// Combined Juz Ayah with translation
+export interface JuzAyahWithTranslation {
+  number: number;
+  numberInSurah: number;
+  arabic: string;
+  translation: string;
+  audio?: string;
+  audioSecondary?: string[];
+  surah: Surah;
+}

@@ -44,6 +44,13 @@ export default function Navbar({ onAIClick, isAIOpen }: NavbarProps) {
                                 Beranda
                             </Link>
                             <Link
+                                href="/juz"
+                                className={`transition-colors font-medium flex items-center gap-1 ${isActive('/juz') ? 'text-white' : 'text-white/80 hover:text-white'}`}
+                            >
+                                <i className="ri-book-open-line"></i>
+                                Per Juz
+                            </Link>
+                            <Link
                                 href="/bookmarks"
                                 className={`transition-colors font-medium flex items-center gap-1 ${isActive('/bookmarks') ? 'text-white' : 'text-white/80 hover:text-white'}`}
                             >
@@ -82,14 +89,14 @@ export default function Navbar({ onAIClick, isAIOpen }: NavbarProps) {
                         <span className="text-[10px] font-medium">Beranda</span>
                     </Link>
 
-                    {/* 2. Bookmark */}
+                    {/* 2. Per Juz */}
                     <Link
-                        href="/bookmarks"
-                        aria-label="Bookmark ayat tersimpan"
-                        className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/bookmarks') ? 'text-gold' : 'text-white/60 active:text-white'}`}
+                        href="/juz"
+                        aria-label="Baca Al-Quran per juz"
+                        className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 transition-all ${isActive('/juz') ? 'text-gold' : 'text-white/60 active:text-white'}`}
                     >
-                        <i className={`ri-bookmark-${isActive('/bookmarks') ? 'fill' : 'line'} text-xl`} aria-hidden="true"></i>
-                        <span className="text-[10px] font-medium">Bookmark</span>
+                        <i className={`ri-book-open-${isActive('/juz') ? 'fill' : 'line'} text-xl`} aria-hidden="true"></i>
+                        <span className="text-[10px] font-medium">Per Juz</span>
                     </Link>
 
                     {/* 3. AI - Center with special styling */}

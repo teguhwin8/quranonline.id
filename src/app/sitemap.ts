@@ -4,12 +4,20 @@ import { MetadataRoute } from 'next';
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://quranonline.id';
 
 // Static date for lastModified (update this when deploying new content)
-const LAST_MODIFIED = new Date('2026-02-07');
+const LAST_MODIFIED = new Date('2026-02-19');
 
 export default function sitemap(): MetadataRoute.Sitemap {
     // Generate all 114 surah URLs
     const surahUrls = Array.from({ length: 114 }, (_, i) => ({
         url: `${BASE_URL}/surah/${i + 1}`,
+        lastModified: LAST_MODIFIED,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+    }));
+
+    // Generate all 30 juz URLs
+    const juzUrls = Array.from({ length: 30 }, (_, i) => ({
+        url: `${BASE_URL}/juz/${i + 1}`,
         lastModified: LAST_MODIFIED,
         changeFrequency: 'monthly' as const,
         priority: 0.8,
@@ -21,6 +29,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: LAST_MODIFIED,
             changeFrequency: 'weekly',
             priority: 1,
+        },
+        {
+            url: `${BASE_URL}/juz`,
+            lastModified: LAST_MODIFIED,
+            changeFrequency: 'weekly',
+            priority: 0.9,
         },
         {
             url: `${BASE_URL}/search`,
@@ -41,6 +55,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.3,
         },
         ...surahUrls,
+        ...juzUrls,
     ];
 }
 

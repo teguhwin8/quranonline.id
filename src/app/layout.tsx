@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     default: "Quran Online - Al-Quran Digital dengan AI Tanya Jawab & Terjemahan Indonesia",
     template: "%s | Quran Online",
   },
-  description: "Baca Al-Quran online 114 surah dengan AI Tanya Jawab, terjemahan Bahasa Indonesia, audio murottal, dan fitur bookmark. Tanya apa saja tentang Al-Quran! 100% gratis.",
+  description: "Baca Al-Quran online 114 surah dan 30 juz dengan AI Tanya Jawab, terjemahan Bahasa Indonesia, audio murottal, dan fitur bookmark. Tanya apa saja tentang Al-Quran! 100% gratis.",
   keywords: [
     // Primary keywords
     "quran online",
@@ -75,6 +75,11 @@ export const metadata: Metadata = {
     "quran lengkap 114 surah",
     "ngaji online gratis",
     "baca quran gratis",
+    // Juz keywords
+    "quran per juz",
+    "juz amma",
+    "30 juz al quran",
+    "baca quran per juz",
     // Popular surah searches (high volume)
     "surah yasin",
     "surah al-fatihah",
@@ -97,7 +102,7 @@ export const metadata: Metadata = {
     url: BASE_URL,
     siteName: "Quran Online",
     title: "Quran Online - Al-Quran Digital dengan AI Tanya Jawab",
-    description: "Baca Al-Quran online 114 surah dengan AI Tanya Jawab, terjemahan Indonesia, audio murottal. Tanya apa saja tentang Al-Quran!",
+    description: "Baca Al-Quran online 114 surah dan 30 juz dengan AI Tanya Jawab, terjemahan Indonesia, audio murottal. Tanya apa saja tentang Al-Quran!",
     images: [
       {
         url: "/og-image.jpg",

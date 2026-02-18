@@ -1,6 +1,6 @@
 import { getSurahList } from '@/lib/api';
-import SurahCard from '@/components/SurahCard';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
+import HomeTabSwitcher from '@/components/HomeTabSwitcher';
 
 // Base URL from environment variable
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://quranonline.id';
@@ -78,17 +78,9 @@ export default async function HomePage() {
         <span className="text-gold text-2xl">✦</span>
       </div>
 
-      {/* Surah List */}
-      <section>
-        <h2 className="text-xl font-semibold text-foreground mb-6">
-          Daftar Surah Al-Quran
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 stagger-children">
-          {surahs.map((surah) => (
-            <SurahCard key={surah.number} surah={surah} />
-          ))}
-        </div>
-      </section>
+      {/* Surah/Juz List with Tab Switcher */}
+      <HomeTabSwitcher surahs={surahs} />
     </div>
   );
 }
+

@@ -4,6 +4,8 @@ import {
     SurahDetail,
     SearchResult,
     AyahWithTranslation,
+    JuzDetail,
+    JuzAyahWithTranslation,
 } from '@/types/quran';
 
 const BASE_URL = 'https://api.alquran.cloud/v1';
@@ -203,4 +205,99 @@ export async function getAyah(
     } catch {
         return null;
     }
+}
+
+/**
+ * Fetch a single Juz with Arabic text
+ */
+export async function getJuz(number: number): Promise<JuzDetail> {
+    const res = await fetch(`${BASE_URL}/juz/${number}/${ARABIC_EDITION}`, {
+        next: { revalidate: 86400 },
+    });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch juz ${number}`);
+    }
+
+    const data: ApiResponse<JuzDetail> = await res.json();
+    return data.data;
+}
+
+/**
+ * Fetch a single Juz with translation
+ */
+export async function getJuzTranslation(number: number): Promise<JuzDetail> {
+    const res = await fetch(`${BASE_URL}/juz/${number}/${TRANSLATION_EDITION}`, {
+        next: { revalidate: 86400 },
+    });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch juz translation ${number}`);
+    }
+
+    const data: ApiResponse<JuzDetail> = await res.json();
+    return data.data;
+}
+
+/**
+ * Fetch a single Juz with audio
+ */
+export async function getJuzAudio(number: number, reciterIdentifier: string = DEFAULT_AUDIO_EDITION): Promise<JuzDetail> {
+    const res = await fetch(`${BASE_URL}/juz/${number}/${reciterIdentifier}`, {
+        next: { revalidate: 86400 },
+    });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch juz audio ${number}`);
+    }
+
+    const data: ApiResponse<JuzDetail> = await res.json();
+    return data.data;
+}
+
+/**
+ * Fetch Juz with Arabic, Translation, and Audio combined
+ */
+export async function getJuzComplete(number: number, reciterIdentifier: string = DEFAULT_AUDIO_EDITION): Promise<{
+    juzNumber: number;
+    ayahs: JuzAyahWithTranslation[];
+}> {
+    const [arabic, translation, audio] = await Promise.all([
+        getJuz(number),
+        getJuzTranslation(number),
+        getJuzAudio(number, reciterIdentifier),
+    ]);
+
+    // Bismillah prefix in quran-uthmani edition (prepended to ayah 1 of most surahs)
+    // Must use NFC normalization because the API and code may have diacritics in different order
+    const BISMILLAH_PREFIX = 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ';
+    const BISMILLAH_NFC = BISMILLAH_PREFIX.normalize('NFC');
+
+    const ayahs: JuzAyahWithTranslation[] = arabic.ayahs.map((ayah, index) => {
+        let arabicText = ayah.text;
+
+        // Strip bismillah from displayed text of ayah 1 (except Al-Fatihah & At-Taubah)
+        // Audio still contains bismillah recitation
+        if (ayah.numberInSurah === 1 && ayah.surah.number !== 1 && ayah.surah.number !== 9) {
+            const normalized = arabicText.normalize('NFC');
+            if (normalized.startsWith(BISMILLAH_NFC)) {
+                arabicText = normalized.slice(BISMILLAH_NFC.length).trim();
+            }
+        }
+
+        return {
+            number: ayah.number,
+            numberInSurah: ayah.numberInSurah,
+            arabic: arabicText,
+            translation: translation.ayahs[index]?.text || '',
+            audio: audio.ayahs[index]?.audio,
+            audioSecondary: audio.ayahs[index]?.audioSecondary,
+            surah: ayah.surah,
+        };
+    });
+
+    return {
+        juzNumber: number,
+        ayahs,
+    };
 }
