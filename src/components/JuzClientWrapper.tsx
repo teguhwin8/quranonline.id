@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import AyahCard from '@/components/AyahCard';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useAudio } from '@/hooks/useAudio';
@@ -54,6 +55,7 @@ export default function JuzClientWrapper({ juzNumber, ayahs: initialAyahs }: Juz
     const { selectedReciter, bismillahAudio } = useReciter();
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const ayahRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const pathname = usePathname();
     const [initialized, setInitialized] = useState(false);
     const [viewMode, setViewMode] = useState<ViewMode>('per-ayat');
     const [ayahs, setAyahs] = useState<JuzAyahWithTranslation[]>(initialAyahs);
@@ -96,9 +98,83 @@ export default function JuzClientWrapper({ juzNumber, ayahs: initialAyahs }: Juz
         localStorage.setItem(VIEW_MODE_KEY, mode);
     }, []);
 
+    // Function to scroll to ayah based on hash
+    const scrollToHashAyah = useCallback(() => {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#ayah-')) {
+            // Hash format: #ayah-[surahNumber]-[ayahNumber]
+            const parts = hash.replace('#ayah-', '').split('-');
+            const surahNum = parseInt(parts[0], 10);
+            const ayahNum = parseInt(parts[1], 10);
+
+            if (!isNaN(surahNum) && !isNaN(ayahNum)) {
+                const index = ayahs.findIndex(a => a.surah.number === surahNum && a.numberInSurah === ayahNum);
+                if (index !== -1) {
+                    const tryScroll = (attempt: number) => {
+                        const element = ayahRefs.current[index];
+                        if (element) {
+                            element.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center',
+                            });
+                        } else if (attempt < 5) {
+                            setTimeout(() => tryScroll(attempt + 1), 200 * attempt);
+                        }
+                    };
+                    setTimeout(() => tryScroll(1), 300);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }, [ayahs]);
+
+    // Handle initial mount and route changes
+    useEffect(() => {
+        const hasHash = scrollToHashAyah();
+        if (!hasHash) {
+            window.scrollTo(0, 0);
+        }
+    }, [pathname, scrollToHashAyah, initialized]);
+
+    // Listen for hash changes
+    useEffect(() => {
+        const handleHashChange = () => {
+            scrollToHashAyah();
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, [scrollToHashAyah]);
+
     useEffect(() => {
         setInitialized(true);
     }, []);
+
+    // Auto-scroll to current playing ayah when it changes
+    useEffect(() => {
+        if (
+            audioState.surah?.number === -juzNumber &&
+            audioState.currentAyahIndex !== null
+        ) {
+            // Check if bismillah is prepended in the audio playlist
+            const hasBismillahPrepended = audioState.ayahs.length > 0 &&
+                audioState.ayahs[0]?.numberInSurah === 0;
+
+            // If bismillah is prepended, adjust the index for the page
+            const pageIndex = hasBismillahPrepended
+                ? audioState.currentAyahIndex - 1
+                : audioState.currentAyahIndex;
+
+            // Only scroll if it's a valid page index (not bismillah itself which is -1 after adjustment)
+            if (pageIndex >= 0 && ayahRefs.current[pageIndex]) {
+                ayahRefs.current[pageIndex]?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+            }
+        }
+    }, [audioState.currentAyahIndex, audioState.surah?.number, audioState.ayahs, juzNumber]);
 
     // Group ayahs by surah
     const surahGroups = useMemo(() => groupAyahsBySurah(ayahs), [ayahs]);
@@ -126,6 +202,7 @@ export default function JuzClientWrapper({ juzNumber, ayahs: initialAyahs }: Juz
             translation: a.translation,
             audio: a.audio,
             audioSecondary: a.audioSecondary,
+            surah: a.surah,
         }));
 
         if (audioState.surah?.number !== virtualSurah.number) {
@@ -162,6 +239,7 @@ export default function JuzClientWrapper({ juzNumber, ayahs: initialAyahs }: Juz
             translation: a.translation,
             audio: a.audio,
             audioSecondary: a.audioSecondary,
+            surah: a.surah,
         }));
 
         // Check if the first surah in juz starts at ayah 1 (needs bismillah)

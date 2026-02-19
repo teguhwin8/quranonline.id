@@ -90,6 +90,7 @@ export interface AyahWithTranslation {
   translation: string;
   audio?: string;
   audioSecondary?: string[];
+  surah?: Surah;
 }
 
 // Juz Ayah (from juz API - includes surah info per ayah)

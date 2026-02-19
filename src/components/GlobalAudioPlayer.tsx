@@ -256,7 +256,14 @@ export default function GlobalAudioPlayer() {
 
     const handleNavigateToAyah = () => {
         if (surah && currentAyah) {
-            router.push(`/surah/${surah.number}#ayah-${currentAyah.numberInSurah}`);
+            // In Juz view, surah.number is negative.
+            if (surah.number < 0) {
+                const juzNumber = Math.abs(surah.number);
+                const ayahSurahNum = (currentAyah as any).surah?.number || 0;
+                router.push(`/juz/${juzNumber}#ayah-${ayahSurahNum}-${currentAyah.numberInSurah}`);
+            } else {
+                router.push(`/surah/${surah.number}#ayah-${currentAyah.numberInSurah}`);
+            }
         }
     };
 
