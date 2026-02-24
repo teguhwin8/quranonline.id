@@ -93,8 +93,10 @@ html.dark {
   --color-header-text: var(--header-text);
   --color-ornament: var(--ornament);
 
-  --font-sans: var(--font-inter), 'Inter', sans-serif;
-  --font-arabic: var(--font-scheherazade), var(--font-amiri), 'Scheherazade New', 'Amiri', 'Traditional Arabic', serif;
+  --font-sans: var(--font-inter), "Inter", sans-serif;
+  --font-arabic:
+    var(--font-scheherazade), var(--font-amiri), "Scheherazade New", "Amiri",
+    "Traditional Arabic", serif;
 
   /* Consistent Shadow Scale */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -158,6 +160,65 @@ body {
   }
 }
 
+/* ============================= */
+/* Karaoke Arabic Highlight      */
+/* ============================= */
+
+/*
+ * Karaoke-style highlight for the currently playing ayah.
+ * Uses CSS background-clip: text with a linear-gradient that splits
+ * at --karaoke-progress (0%–100%) to show highlighted vs normal color.
+ *
+ * Arabic text is RTL, so reading starts from the RIGHT side.
+ * As audio plays, the highlighted (green) portion grows from RIGHT to LEFT.
+ *
+ * Using `to left` direction:
+ *   - 0% position = right edge of the element
+ *   - 100% position = left edge of the element
+ * So: highlight (green) occupies 0% → progress% (right side),
+ *     normal color occupies progress% → 100% (left side).
+ */
+.arabic-karaoke {
+  background: linear-gradient(
+    to left,
+    var(--primary-600) var(--karaoke-progress, 0%),
+    var(--arabic-text) var(--karaoke-progress, 0%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+html.dark .arabic-karaoke {
+  background: linear-gradient(
+    to left,
+    var(--primary-400) var(--karaoke-progress, 0%),
+    var(--arabic-text) var(--karaoke-progress, 0%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Individual character karaoke highlight - for multiline support with smooth transition */
+.arabic-karaoke-char {
+  color: var(--primary-600);
+  transition: color 0.3s ease-out;
+}
+
+html.dark .arabic-karaoke-char {
+  color: var(--primary-400);
+  transition: color 0.3s ease-out;
+}
+
+/* Karaoke highlight for the ayah-end-marker (verse number circle) */
+.arabic-karaoke .ayah-end-marker {
+  -webkit-text-fill-color: initial;
+  color: initial;
+}
+
 /* Surah Name in Arabic */
 .surah-name-arabic {
   font-family: var(--font-arabic);
@@ -183,13 +244,15 @@ body {
 
 .ornament-divider::before,
 .ornament-divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right,
-      transparent,
-      var(--ornament),
-      transparent);
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--ornament),
+    transparent
+  );
 }
 
 /* Ayah Number Badge */
@@ -220,7 +283,7 @@ body {
 }
 
 .ayah-end-marker::before {
-  content: '۝';
+  content: "۝";
   font-size: 2.5rem;
   position: absolute;
   color: var(--ornament);
@@ -513,10 +576,12 @@ html.dark .search-more-link:hover {
 }
 
 .loading-shimmer {
-  background: linear-gradient(90deg,
-      var(--card-border) 25%,
-      var(--background-alt) 50%,
-      var(--card-border) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--card-border) 25%,
+    var(--background-alt) 50%,
+    var(--card-border) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -539,36 +604,36 @@ html.dark .search-more-link:hover {
 }
 
 /* Stagger Children Animation */
-.stagger-children>* {
+.stagger-children > * {
   animation: fadeIn 0.4s ease-out forwards;
   opacity: 0;
 }
 
-.stagger-children>*:nth-child(1) {
+.stagger-children > *:nth-child(1) {
   animation-delay: 0.05s;
 }
 
-.stagger-children>*:nth-child(2) {
+.stagger-children > *:nth-child(2) {
   animation-delay: 0.1s;
 }
 
-.stagger-children>*:nth-child(3) {
+.stagger-children > *:nth-child(3) {
   animation-delay: 0.15s;
 }
 
-.stagger-children>*:nth-child(4) {
+.stagger-children > *:nth-child(4) {
   animation-delay: 0.2s;
 }
 
-.stagger-children>*:nth-child(5) {
+.stagger-children > *:nth-child(5) {
   animation-delay: 0.25s;
 }
 
-.stagger-children>*:nth-child(6) {
+.stagger-children > *:nth-child(6) {
   animation-delay: 0.3s;
 }
 
-.stagger-children>*:nth-child(n+7) {
+.stagger-children > *:nth-child(n + 7) {
   animation-delay: 0.35s;
 }
 
@@ -883,7 +948,6 @@ html.dark .ai-suggestion-chip:hover {
 }
 
 @keyframes typingDot {
-
   0%,
   80%,
   100% {
