@@ -1,124 +1,115 @@
 'use client';
 
 import { SurahDetail, AyahWithTranslation } from '@/types/quran';
+import {
+    PDFSettings,
+    resolveMargin,
+    resolvePaperSize,
+    resolveArabicFontSize,
+    resolveTranslationFontSize,
+    resolveTransliterationFontSize,
+} from '@/components/PDFSettingsModal';
+import { toIndonesianTransliteration } from '@/lib/transliteration';
 
 // Convert Western numerals to Eastern Arabic-Indic numerals
 const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-const toArabicNumber = (num: number): string => {
-    return num.toString().split('').map(digit => arabicNumerals[parseInt(digit)]).join('');
-};
+const toArabicNumber = (num: number): string =>
+    num.toString().split('').map(d => arabicNumerals[Number.parseInt(d)]).join('');
 
-// Ayah end marker
 const AYAH_END = '۝';
 
 interface GeneratePDFOptions {
     surah: SurahDetail;
     ayahs: AyahWithTranslation[];
     includeBismillah?: boolean;
+    settings: PDFSettings;
 }
 
-export async function generateSurahPDF({ surah, ayahs, includeBismillah = true }: GeneratePDFOptions): Promise<void> {
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
+export async function generateSurahPDF({ surah, ayahs, includeBismillah = true, settings }: GeneratePDFOptions): Promise<void> {
+    const printWindow = globalThis.window.open('', '_blank');
     if (!printWindow) {
         alert('Popup diblokir. Mohon izinkan popup untuk download PDF.');
         return;
     }
 
-    // Build HTML content
+    const margin = resolveMargin(settings);
+    const paperSize = resolvePaperSize(settings);
+    const arabicSize = resolveArabicFontSize(settings);
+    const translationSize = resolveTranslationFontSize(settings);
+    const transliterationSize = resolveTransliterationFontSize(settings);
+    const markerSize = Math.round(arabicSize * 0.78);
+
     const bismillah = includeBismillah && surah.number !== 9 && surah.number !== 1
-        ? '<p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>'
+        ? `<p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>`
         : '';
 
-    const ayahsHtml = ayahs.map((ayah) =>
-        `<span class="ayah">${ayah.arabic} <span class="marker">${AYAH_END}${toArabicNumber(ayah.numberInSurah)}</span></span>`
-    ).join(' ');
+    const ayahsHtml = ayahs.map((ayah) => {
+        const rawLatin = ayah.transliteration ?? '';
+        const latinText = rawLatin ? toIndonesianTransliteration(rawLatin) : '';
+        const latin = settings.includeTransliteration && latinText
+            ? `<span class="transliteration">${latinText}</span>`
+            : '';
+        const translation = settings.includeTranslation && ayah.translation
+            ? `<span class="translation">${ayah.numberInSurah}. ${ayah.translation}</span>`
+            : '';
+        const hasExtra = latin || translation;
+        return `<span class="ayah-wrap${hasExtra ? ' ayah-wrap--block' : ''}">
+            <span class="ayah">${ayah.arabic} <span class="marker">${AYAH_END}${toArabicNumber(ayah.numberInSurah)}</span></span>
+            ${latin}${translation}
+        </span>`;
+    }).join(' ');
 
-    const html = `
-<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <title>${surah.englishName} - ${surah.name}</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @page {
-            size: A4 portrait;
-            margin: 0.5cm;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        @page { size: ${paperSize} portrait; margin: ${margin}; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Amiri', serif;
             direction: rtl;
             text-align: justify;
             line-height: 2.2;
-            padding: 0.5cm;
+            padding: ${margin};
             background: white;
-            color: #717171ff;
+            color: #717171;
         }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 0.5cm;
-            padding-bottom: 0.3cm;
-        }
-        
-        .header h1 {
-            font-size: 16pt;
-        }
-        
-        .header .arabic-name {
-            font-size: 22pt;
-            margin-bottom: 0.1cm;
-        }
-        
-        .header .info {
-            font-size: 10pt;
-            color: #888;
-        }
-        
-        .bismillah {
-            text-align: center;
-            font-size: 48pt;
-            margin-bottom: 0.5cm;
-        }
-        
-        .content {
-            font-size: 56pt;
-            line-height: 2;
-            text-align: justify;
-            text-justify: inter-word;
-        }
-        
-        .ayah {
-            display: inline;
-        }
-        
-        .marker {
-            font-size: 44pt;
-            margin: 0 0.1em;
-        }
-        
-        .footer {
-            margin-top: 1cm;
-            padding-top: 0.3cm;
-            border-top: 1px solid #ccc;
-            text-align: center;
-            font-size: 10pt;
+        .header { text-align: center; margin-bottom: 0.5cm; }
+        .header .arabic-name { font-size: 22pt; margin-bottom: 0.1cm; }
+        .bismillah { text-align: center; font-size: ${arabicSize}pt; margin-bottom: 0.5cm; }
+        .content { font-size: ${arabicSize}pt; line-height: 2; text-align: justify; text-justify: inter-word; }
+        .ayah-wrap { display: inline; }
+        .ayah-wrap--block { display: block; margin-bottom: 0.4cm; }
+        .ayah { display: inline; }
+        .marker { font-size: ${markerSize}pt; margin: 0 0.1em; }
+        .transliteration {
+            display: block;
             direction: ltr;
+            text-align: left;
+            font-size: ${transliterationSize}pt;
+            font-family: Georgia, serif;
+            font-style: italic;
+            color: #444;
+            line-height: 1.5;
+            margin-top: 0.15cm;
         }
-        
+        .translation {
+            display: block;
+            direction: ltr;
+            text-align: left;
+            font-size: ${translationSize}pt;
+            color: #555;
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin-top: 0.1cm;
+            padding-left: 0.3cm;
+            border-left: 2px solid #ccc;
+        }
         @media print {
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -126,23 +117,16 @@ export async function generateSurahPDF({ surah, ayahs, includeBismillah = true }
     <div class="header">
         <div class="arabic-name">${surah.name}</div>
     </div>
-    
     ${bismillah}
-    
-    <div class="content">
-        ${ayahsHtml}
-    </div>
+    <div class="content">${ayahsHtml}</div>
 </body>
-</html>
-    `;
+</html>`;
 
+    printWindow.document.open();
     printWindow.document.write(html);
     printWindow.document.close();
 
-    // Wait for fonts to load, then trigger print
     printWindow.onload = () => {
-        setTimeout(() => {
-            printWindow.print();
-        }, 500);
+        setTimeout(() => { printWindow.print(); }, 500);
     };
 }

@@ -88,6 +88,7 @@ export interface AyahWithTranslation {
   numberInSurah: number;
   arabic: string;
   translation: string;
+  transliteration?: string;
   audio?: string;
   audioSecondary?: string[];
   surah?: Surah;
@@ -121,6 +122,7 @@ export interface JuzAyahWithTranslation {
   numberInSurah: number;
   arabic: string;
   translation: string;
+  transliteration?: string;
   audio?: string;
   audioSecondary?: string[];
   surah: Surah;

@@ -14,6 +14,8 @@ import { useBookmarks } from "@/hooks/useBookmarks";
 import { useAudio } from "@/hooks/useAudio";
 import { useReciter, DEFAULT_RECITER } from "@/hooks/useReciter";
 import { generateSurahPDF } from "@/lib/generateSurahPDF";
+import PDFSettingsModal from "@/components/PDFSettingsModal";
+import { usePDFSettings } from "@/hooks/usePDFSettings";
 import { getSurahAudio } from "@/lib/api";
 import { AyahWithTranslation, SurahDetail } from "@/types/quran";
 
@@ -53,6 +55,8 @@ export default function SurahClientWrapper({
   const [initialized, setInitialized] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("per-ayat");
   const [ayahs, setAyahs] = useState<AyahWithTranslation[]>(initialAyahs);
+  const [showPDFModal, setShowPDFModal] = useState(false);
+  const { settings: pdfSettings, setSettings: setPdfSettings } = usePDFSettings();
 
   // Re-fetch audio when reciter changes (server renders with default reciter)
   useEffect(() => {
@@ -376,13 +380,7 @@ export default function SurahClientWrapper({
 
           {/* Download PDF Button */}
           <button
-            onClick={() =>
-              generateSurahPDF({
-                surah,
-                ayahs,
-                includeBismillah: surah.number !== 1 && surah.number !== 9,
-              })
-            }
+            onClick={() => setShowPDFModal(true)}
             className="btn btn-secondary btn-compact"
             title="Download PDF"
           >
@@ -453,6 +451,24 @@ export default function SurahClientWrapper({
             })}
           </p>
         </div>
+      )}
+
+      {/* PDF Settings Modal */}
+      {showPDFModal && (
+        <PDFSettingsModal
+          settings={pdfSettings}
+          onChange={setPdfSettings}
+          onClose={() => setShowPDFModal(false)}
+          onConfirm={() => {
+            setShowPDFModal(false);
+            generateSurahPDF({
+              surah,
+              ayahs,
+              includeBismillah: surah.number !== 1 && surah.number !== 9,
+              settings: pdfSettings,
+            });
+          }}
+        />
       )}
     </>
   );

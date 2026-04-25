@@ -14,6 +14,8 @@ const BASE_URL = 'https://api.alquran.cloud/v1';
 const ARABIC_EDITION = 'quran-uthmani';
 // Indonesian translation
 const TRANSLATION_EDITION = 'id.indonesian';
+// Latin transliteration
+const TRANSLITERATION_EDITION = 'en.transliteration';
 // Default audio edition (Mishary Alafasy)
 const DEFAULT_AUDIO_EDITION = 'ar.alafasy';
 
@@ -82,15 +84,32 @@ export async function getSurahAudio(number: number, reciterIdentifier: string = 
 }
 
 /**
+ * Fetch a single Surah with transliteration (Latin)
+ */
+export async function getSurahTransliteration(number: number): Promise<SurahDetail> {
+    const res = await fetch(`${BASE_URL}/surah/${number}/${TRANSLITERATION_EDITION}`, {
+        next: { revalidate: 86400 },
+    });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch surah transliteration ${number}`);
+    }
+
+    const data: ApiResponse<SurahDetail> = await res.json();
+    return data.data;
+}
+
+/**
  * Fetch Surah with Arabic, Translation, and Audio combined
  */
 export async function getSurahComplete(number: number, reciterIdentifier: string = DEFAULT_AUDIO_EDITION): Promise<{
     surah: SurahDetail;
     ayahs: AyahWithTranslation[];
 }> {
-    const [arabic, translation, audio] = await Promise.all([
+    const [arabic, translation, transliteration, audio] = await Promise.all([
         getSurah(number),
         getSurahTranslation(number),
+        getSurahTransliteration(number),
         getSurahAudio(number, reciterIdentifier),
     ]);
 
@@ -115,6 +134,7 @@ export async function getSurahComplete(number: number, reciterIdentifier: string
             numberInSurah: ayah.numberInSurah,
             arabic: arabicText,
             translation: translation.ayahs[index]?.text || '',
+            transliteration: transliteration.ayahs[index]?.text || '',
             audio: audio.ayahs[index]?.audio,
             audioSecondary: audio.ayahs[index]?.audioSecondary,
         };
@@ -256,15 +276,32 @@ export async function getJuzAudio(number: number, reciterIdentifier: string = DE
 }
 
 /**
+ * Fetch a single Juz with transliteration (Latin)
+ */
+export async function getJuzTransliteration(number: number): Promise<JuzDetail> {
+    const res = await fetch(`${BASE_URL}/juz/${number}/${TRANSLITERATION_EDITION}`, {
+        next: { revalidate: 86400 },
+    });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch juz transliteration ${number}`);
+    }
+
+    const data: ApiResponse<JuzDetail> = await res.json();
+    return data.data;
+}
+
+/**
  * Fetch Juz with Arabic, Translation, and Audio combined
  */
 export async function getJuzComplete(number: number, reciterIdentifier: string = DEFAULT_AUDIO_EDITION): Promise<{
     juzNumber: number;
     ayahs: JuzAyahWithTranslation[];
 }> {
-    const [arabic, translation, audio] = await Promise.all([
+    const [arabic, translation, transliteration, audio] = await Promise.all([
         getJuz(number),
         getJuzTranslation(number),
+        getJuzTransliteration(number),
         getJuzAudio(number, reciterIdentifier),
     ]);
 
@@ -290,6 +327,7 @@ export async function getJuzComplete(number: number, reciterIdentifier: string =
             numberInSurah: ayah.numberInSurah,
             arabic: arabicText,
             translation: translation.ayahs[index]?.text || '',
+            transliteration: transliteration.ayahs[index]?.text || '',
             audio: audio.ayahs[index]?.audio,
             audioSecondary: audio.ayahs[index]?.audioSecondary,
             surah: ayah.surah,
